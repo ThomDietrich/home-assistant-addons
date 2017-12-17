@@ -4,9 +4,9 @@
   "slug": "autossh",
   "description": "Automaticly connect to a ssh server for forwarding ports",
   "url": "https://github.com/odinuge/hassio-addons",
-  "startup": "services",
+  "startup": "application",
   "boot": "auto",
-  "map": ["config:rw", "ssl:rw", "addons:rw", "share:rw", "backup:rw"],
+  "map": ["config:ro"],
   "options": {
     "hostname": "",
     "ssh_port": "22",
@@ -24,5 +24,6 @@
     "local_forwarding": ["str"],
     "other_ssh_options": "str",
     "monitor_port": "int"
-  }
+  },
+  "image": "odinuge/hassio-addon-autossh-{arch}"
 }
