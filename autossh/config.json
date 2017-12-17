@@ -6,7 +6,7 @@
   "url": "https://github.com/odinuge/hassio-addons",
   "startup": "application",
   "boot": "auto",
-  "map": ["config:ro"],
+  "map": ["config:rw"],
   "options": {
     "hostname": "",
     "ssh_port": "22",
