@@ -1,8 +1,8 @@
 {
   "name": "Autossh",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "slug": "autossh",
-  "description": "Automaticly connect to a ssh server for forwarding ports",
+  "description": "Automatically connect to a ssh server for forwarding ports",
   "url": "https://github.com/odinuge/hassio-addons",
   "startup": "application",
   "boot": "auto",
@@ -13,7 +13,7 @@
     "username": "autossh",
     "remote_forwarding": ["127.0.0.1:8123:172.17.0.1:8123"],
     "local_forwarding": [""],
-    "other_ssh_options": "",
+    "other_ssh_options": "-v",
     "monitor_port": "0"
   },
   "schema": {
