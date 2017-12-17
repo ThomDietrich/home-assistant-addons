@@ -48,6 +48,8 @@ ssh -o StrictHostKeyChecking=no $HOSTNAME 2>/dev/null || true
 echo "[INFO] listing host keys"
 ssh-keyscan $HOSTNAME || true
 
+command_args="${command_args} ${OTHER_SSH_OPTIONS}"
+
 echo "[INFO] command args: ${command_args}"
 # start autossh
 /usr/bin/autossh ${command_args}
