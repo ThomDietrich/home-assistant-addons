@@ -2,7 +2,7 @@
 
 https://home-assistant.io/hassio
 
-### Autossh
+## Autossh [![](https://images.microbadger.com/badges/version/odinuge/hassio-addon-autossh-armhf.svg)](https://microbadger.com/images/odinuge/hassio-addon-autossh-armhf "Get your own version badge on microbadger.com")
 Simple autossh addon. The addon creates a ssh keypair, and uses it
 to connect to to the given host. The public key can be found in the
 log after the first startup.
