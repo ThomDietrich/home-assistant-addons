@@ -1,6 +1,6 @@
 {
   "name": "Autossh",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "slug": "autossh",
   "description": "Automatically connect to a ssh server for forwarding ports",
   "url": "https://github.com/odinuge/hassio-addons",
