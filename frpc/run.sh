@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 set -e
 
 CONFIG_PATH=/data/options.json
@@ -33,4 +33,4 @@ use_encryption = true
 use_compression = true
 EOF
 
-/frpc $CONFIG
+/frpc -c $CONFIG
