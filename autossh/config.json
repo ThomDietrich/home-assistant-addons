@@ -15,7 +15,8 @@
     "remote_forwarding": ["127.0.0.1:8123:172.17.0.1:8123"],
     "local_forwarding": [""],
     "other_ssh_options": "-v",
-    "monitor_port": "0"
+    "monitor_port": "0",
+    "gatetime": "30"
   },
   "schema": {
     "hostname": "str",
@@ -24,7 +25,8 @@
     "remote_forwarding": ["str"],
     "local_forwarding": ["str"],
     "other_ssh_options": "str",
-    "monitor_port": "int"
+    "monitor_port": "int",
+    "gatetime": "int"
   },
   "image": "odinuge/hassio-addon-autossh-{arch}"
 }
