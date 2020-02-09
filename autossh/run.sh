@@ -8,12 +8,14 @@ HOSTNAME=$(jq --raw-output ".hostname" $CONFIG_PATH)
 SSH_PORT=$(jq --raw-output ".ssh_port" $CONFIG_PATH)
 USERNAME=$(jq --raw-output ".username" $CONFIG_PATH)
 
-
 REMOTE_FORWARDING=$(jq --raw-output ".remote_forwarding[]" $CONFIG_PATH)
 LOCAL_FORWARDING=$(jq --raw-output ".local_forwarding[]" $CONFIG_PATH)
 
 OTHER_SSH_OPTIONS=$(jq --raw-output ".other_ssh_options" $CONFIG_PATH)
 MONITOR_PORT=$(jq --raw-output ".monitor_port" $CONFIG_PATH)
+GATETIME=$(jq --raw-output ".gatetime" $CONFIG_PATH)
+
+export AUTOSSH_GATETIME=$GATETIME
 
 # Generate key
 if [ ! -d "$KEY_PATH" ]; then
@@ -35,7 +37,6 @@ if [ ! -z "$REMOTE_FORWARDING" ]; then
   done <<< "$REMOTE_FORWARDING"
 fi
 
-
 if [ ! -z "$LOCAL_FORWARDING" ]; then
   while read -r line; do
     command_args="${command_args} -L $line"
@@ -50,6 +51,8 @@ ssh-keyscan -p $SSH_PORT $HOSTNAME || true
 
 command_args="${command_args} ${OTHER_SSH_OPTIONS}"
 
+echo "[INFO] AUTOSSH_GATETIME=$AUTOSSH_GATETIME"
 echo "[INFO] command args: ${command_args}"
-# start autossh
+
+# Start autossh
 /usr/bin/autossh ${command_args}
