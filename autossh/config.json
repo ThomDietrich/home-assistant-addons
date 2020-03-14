@@ -1,9 +1,9 @@
 {
-  "name": "Autossh",
-  "version": "0.4.0",
+  "name": "SSH Tunnel & Forwarding",
+  "version": "0.8.7",
   "slug": "autossh",
-  "description": "Automatically connect to a ssh server for forwarding ports",
-  "url": "https://github.com/odinuge/hassio-addons",
+  "description": "Permanent port forwarding through an SSH tunnel",
+  "url": "https://github.com/ThomDietrich/hassio-addons",
   "arch": ["armv7", "armhf", "amd64", "aarch64", "i386"],
   "startup": "application",
   "boot": "auto",
@@ -11,23 +11,18 @@
   "map": ["config:rw"],
   "options": {
     "hostname": "",
-    "ssh_port": "22",
+    "ssh_port": 22,
     "username": "autossh",
     "remote_forwarding": ["127.0.0.1:8123:172.17.0.1:8123"],
-    "local_forwarding": [""],
     "other_ssh_options": "-v",
-    "monitor_port": "0",
-    "gatetime": "30"
+    "force_keygen": false
   },
   "schema": {
     "hostname": "str",
     "ssh_port": "int",
     "username": "str",
     "remote_forwarding": ["str"],
-    "local_forwarding": ["str"],
     "other_ssh_options": "str",
-    "monitor_port": "int",
-    "gatetime": "int"
-  },
-  "image": "odinuge/hassio-addon-autossh-{arch}"
+    "force_keygen": "bool"
+  }
 }

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/with-contenv bashio
 set -e
 
 CONFIG_PATH=/data/options.json
@@ -9,50 +9,87 @@ SSH_PORT=$(jq --raw-output ".ssh_port" $CONFIG_PATH)
 USERNAME=$(jq --raw-output ".username" $CONFIG_PATH)
 
 REMOTE_FORWARDING=$(jq --raw-output ".remote_forwarding[]" $CONFIG_PATH)
-LOCAL_FORWARDING=$(jq --raw-output ".local_forwarding[]" $CONFIG_PATH)
 
 OTHER_SSH_OPTIONS=$(jq --raw-output ".other_ssh_options" $CONFIG_PATH)
-MONITOR_PORT=$(jq --raw-output ".monitor_port" $CONFIG_PATH)
-GATETIME=$(jq --raw-output ".gatetime" $CONFIG_PATH)
+FORCE_GENERATION=$(jq --raw-output ".force_keygen" $CONFIG_PATH)
 
-export AUTOSSH_GATETIME=$GATETIME
+#
 
-# Generate key
+if [ "$FORCE_GENERATION" != "false" ]; then
+  bashio::log.info "Deleting existing key pair due to set 'force_keygen'"
+  bashio::log.warning "Do not forget to unset 'force_keygen' in your add-on configuration"
+  rm -rf "$KEY_PATH"
+fi
+
 if [ ! -d "$KEY_PATH" ]; then
-    echo "[INFO] Setup private key"
-    mkdir -p "$KEY_PATH"
-    ssh-keygen -b 4096 -t rsa -N "" -f "${KEY_PATH}/autossh_rsa_key"
+  bashio::log.info "No previous key pair found"
+  mkdir -p "$KEY_PATH"
+  ssh-keygen -b 4096 -t rsa -N "" -C "hassio-setup-via-autossh" -f "${KEY_PATH}/autossh_rsa_key"
+  bashio::log.info "The public key is:"
+  cat "${KEY_PATH}/autossh_rsa_key.pub"
+  bashio::log.warning "Add this key to '~/.ssh/authorize_keys' on your remote server now!"
+  bashio::log.warning "Please restart add-on when done. Exiting..."
+  exit 1
 else
-    echo "[INFO] Restore private_keys"
+  bashio::log.info "Authentication key pair restored"
 fi
 
-echo "[INFO] public key is:"
+bashio::log.info "The public key is:"
 cat "${KEY_PATH}/autossh_rsa_key.pub"
+bashio::log.info "Add to '~/.ssh/authorize_keys' on your remote server"
 
-command_args="-M ${MONITOR_PORT} -N -q -o ServerAliveInterval=20 -o ServerAliveCountMax=3 ${USERNAME}@${HOSTNAME} -p ${SSH_PORT} -i ${KEY_PATH}/autossh_rsa_key"
+#
 
-if [ ! -z "$REMOTE_FORWARDING" ]; then
-  while read -r line; do
-    command_args="${command_args} -R $line"
-  done <<< "$REMOTE_FORWARDING"
+if [ -z "$HOSTNAME" ]; then
+  bashio::log.error "Please set 'hostname' in your config to the address of your remote server"
+  exit 1
 fi
 
-if [ ! -z "$LOCAL_FORWARDING" ]; then
-  while read -r line; do
-    command_args="${command_args} -L $line"
-  done <<< "$LOCAL_FORWARDING"
+TEST_COMMAND="/usr/bin/ssh "\
+"-o BatchMode=yes "\
+"-o ConnectTimeout=5 "\
+"-o PubkeyAuthentication=no "\
+"-o PasswordAuthentication=no "\
+"-o KbdInteractiveAuthentication=no "\
+"-o ChallengeResponseAuthentication=no "\
+"-o StrictHostKeyChecking=no "\
+"-p ${SSH_PORT} -t -t "\
+"test@${HOSTNAME} "\
+"2>&1 || true"
+
+if eval "${TEST_COMMAND}" | grep -q "Permission denied"; then
+  bashio::log.info "Testing SSH connection... SSH service reachable on remote server"
+else
+  eval "${TEST_COMMAND}"
+  bashio::log.error "SSH service can't be reached on remote server"
+  exit 1
 fi
 
-echo "[INFO] testing ssh connection"
-ssh -o StrictHostKeyChecking=no -p $SSH_PORT $HOSTNAME 2>/dev/null || true
-
-echo "[INFO] listing host keys"
+bashio::log.info "Remote server host keys:"
 ssh-keyscan -p $SSH_PORT $HOSTNAME || true
 
-command_args="${command_args} ${OTHER_SSH_OPTIONS}"
+#
 
-echo "[INFO] AUTOSSH_GATETIME=$AUTOSSH_GATETIME"
-echo "[INFO] command args: ${command_args}"
+COMMAND="/usr/bin/autossh "\
+" -M 0 -N "\
+"-o ServerAliveInterval=30 "\
+"-o ServerAliveCountMax=3 "\
+"-o StrictHostKeyChecking=no "\
+"-o ExitOnForwardFailure=yes "\
+"-p ${SSH_PORT} -t -t "\
+"-i ${KEY_PATH}/autossh_rsa_key "\
+"${USERNAME}@${HOSTNAME}"
 
-# Start autossh
-/usr/bin/autossh ${command_args}
+if [ ! -z "${REMOTE_FORWARDING}" ]; then
+  while read -r LINE; do
+    COMMAND="${COMMAND} -R ${LINE}"
+  done <<< "${REMOTE_FORWARDING}"
+fi
+
+COMMAND="${COMMAND} ${OTHER_SSH_OPTIONS}"
+
+bashio::log.info "Executing command: ${COMMAND}"
+/usr/bin/autossh -V
+
+# Execute
+exec ${COMMAND}
