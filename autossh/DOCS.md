@@ -10,6 +10,8 @@ Autossh is a well known tool to establish an SSH connection and keep it connecte
 SSH is known for its high security and the ability to set up port forwardings in both directions through the SSH connection.
 In combination, this add-on offers tunneled port forwarding functionality.
 
+The solution works reliably and without disruptions.
+
 ## TL;DR;
 
 Set `hostname` and `username`, start once to generate a key pair, copy key pair over to remote server, start again, check log for success or error messages.
