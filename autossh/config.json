@@ -1,6 +1,6 @@
 {
   "name": "SSH Tunnel & Forwarding",
-  "version": "0.8.7",
+  "version": "0.9.7",
   "slug": "autossh",
   "description": "Permanent port forwarding through an SSH tunnel",
   "url": "https://github.com/ThomDietrich/home-assistant-addons",
