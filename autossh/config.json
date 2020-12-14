@@ -3,7 +3,7 @@
   "version": "0.8.7",
   "slug": "autossh",
   "description": "Permanent port forwarding through an SSH tunnel",
-  "url": "https://github.com/ThomDietrich/hassio-addons",
+  "url": "https://github.com/ThomDietrich/home-assistant-addons",
   "arch": ["armv7", "armhf", "amd64", "aarch64", "i386"],
   "startup": "application",
   "boot": "auto",
