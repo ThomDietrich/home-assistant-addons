@@ -27,7 +27,7 @@ if [ ! -d "$KEY_PATH" ]; then
   ssh-keygen -b 4096 -t rsa -N "" -C "hassio-setup-via-autossh" -f "${KEY_PATH}/autossh_rsa_key"
   bashio::log.info "The public key is:"
   cat "${KEY_PATH}/autossh_rsa_key.pub"
-  bashio::log.warning "Add this key to '~/.ssh/authorize_keys' on your remote server now!"
+  bashio::log.warning "Add this key to '~/.ssh/authorized_keys' on your remote server now!"
   bashio::log.warning "Please restart add-on when done. Exiting..."
   exit 1
 else
@@ -36,7 +36,7 @@ fi
 
 bashio::log.info "The public key is:"
 cat "${KEY_PATH}/autossh_rsa_key.pub"
-bashio::log.info "Add to '~/.ssh/authorize_keys' on your remote server"
+bashio::log.info "Add to '~/.ssh/authorized_keys' on your remote server"
 
 #
 
