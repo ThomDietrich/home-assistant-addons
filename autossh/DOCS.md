@@ -28,7 +28,7 @@ On your typical Linux system the public key is added to `~/.ssh/authorized_keys`
 ## Remote Server Configuration
 
 By default, forwarded ports can only be bound to localhost.
-To make it available on a public interface, either reconfigure SSH or set up a reverse proxy.
+To make it available on a public interface, either reconfigure SSH or set up a reverse proxy. A docker solution is given as the most secure and the cleanest solution overall.
 
 ### SSH GatewayPorts
 
@@ -36,8 +36,58 @@ Consider to set `GatewayPorts clientspecified` in sshd-config if you would like 
 
 ### Reverse Proxy
 
-We recommend to use a reverse proxy to make ports accessible on public interfaces.
+Use a reverse proxy to make ports accessible on public interfaces.
 Software like Caddy can be used to not only set up the redirect, it will also automatically retrieve a Let's Encrypt certificate (https) if you own a domain name.
+
+### Docker based solution
+
+The recommeded way to provide a secured SSH server for the purpose of this addon is a dedicated container on the remote server. The example below also shows how you would nicely combine this with traefik as one reverse proxy option.
+
+```yaml
+version: '3.1'
+services:
+  homeassistant-autossh:
+    image: linuxserver/openssh-server:latest
+    restart: unless-stopped
+    ports:
+      - 217.61.249.244:2244:2222  # External SSH port, to be used with autossh by homeassistant
+    networks:
+      - traefik
+      - default
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Berlin
+      - USER_NAME=homeassistant
+      - PASSWORD_ACCESS=false
+      - SUDO_ACCESS=false
+      #- USER_PASSWORD=abc123
+      - PUBLIC_KEY_FILE=/authorized_keys
+    volumes:
+      - ./openssh_config:/config  # Enable AllowTcpForwarding and GatewayPorts after creation during first run
+      - ./authorized_keys:/authorized_keys:ro  # Store the generated ssh key here
+    labels:
+      traefik.enable: "true"
+
+      traefik.http.routers.homeassistant-myhome.rule: Host(`myhome.domain.tld`)
+      traefik.http.routers.homeassistant-myhome.tls.certresolver: resolver-gandi
+      traefik.http.routers.homeassistant-myhome.service: homeassistant-myhome
+      traefik.http.services.homeassistant-myhome.loadbalancer.server.port: 8001
+
+networks:
+  traefik:
+    external: true
+```
+
+The respective addon config for this looks similar to this:
+
+```yaml
+hostname: ssh.domain.tld  # or public IP
+ssh_port: 2244
+username: homeassistant
+remote_forwarding:
+  - 127.0.0.1:8001:172.17.0.1:8123
+```
 
 ## Configuration
 
