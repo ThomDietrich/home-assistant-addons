@@ -1,12 +1,13 @@
 {
   "name": "SSH Tunnel & Forwarding",
-  "version": "0.9.8",
+  "version": "0.9.9",
   "slug": "autossh",
   "description": "Permanent port forwarding through an SSH tunnel",
   "url": "https://github.com/ThomDietrich/home-assistant-addons",
   "arch": ["armv7", "armhf", "amd64", "aarch64", "i386"],
   "startup": "application",
   "boot": "auto",
+  "init": false,
   "host_network": true,
   "map": ["config:rw"],
   "options": {
