@@ -24,9 +24,9 @@ fi
 if [ ! -d "$KEY_PATH" ]; then
   bashio::log.info "No previous key pair found"
   mkdir -p "$KEY_PATH"
-  ssh-keygen -b 4096 -t rsa -N "" -C "hassio-setup-via-autossh" -f "${KEY_PATH}/autossh_rsa_key"
+  ssh-keygen -b 4096 -t ed25519 -N "" -C "hassio-setup-via-autossh" -f "${KEY_PATH}/autossh_key"
   bashio::log.info "The public key is:"
-  cat "${KEY_PATH}/autossh_rsa_key.pub"
+  cat "${KEY_PATH}/autossh_key.pub"
   bashio::log.warning "Add this key to '~/.ssh/authorized_keys' on your remote server now!"
   bashio::log.warning "Please restart add-on when done. Exiting..."
   exit 1
@@ -35,7 +35,7 @@ else
 fi
 
 bashio::log.info "The public key is:"
-cat "${KEY_PATH}/autossh_rsa_key.pub"
+cat "${KEY_PATH}/autossh_key.pub"
 bashio::log.info "Add to '~/.ssh/authorized_keys' on your remote server"
 
 #
@@ -77,7 +77,7 @@ COMMAND="/usr/bin/autossh "\
 "-o StrictHostKeyChecking=no "\
 "-o ExitOnForwardFailure=yes "\
 "-p ${SSH_PORT} -t -t "\
-"-i ${KEY_PATH}/autossh_rsa_key "\
+"-i ${KEY_PATH}/autossh_key "\
 "${USERNAME}@${HOSTNAME}"
 
 if [ ! -z "${REMOTE_FORWARDING}" ]; then
