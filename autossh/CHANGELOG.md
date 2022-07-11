@@ -2,7 +2,9 @@
 
 ## 1.1.0
 
-- Please beware that the change in v1.0.9 is not breaking but you might want to set `other_ssh_options`to "-v -N" or even just "-N" (N: no login, just a tunneling connection, v: verbose logging),
+Attention: v1.0.9 introduced a change you should pay attention to during an update.
+Please set `other_ssh_options` to `-N` or `-N -v` (`N`: no login, just a tunneling connection; `v`: verbose logging)
+
 - Replace "config.json" by "config.yaml"
 - Add changelog file
 
