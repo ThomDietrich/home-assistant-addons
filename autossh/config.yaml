@@ -1,5 +1,5 @@
 name: SSH Tunnel & Forwarding
-version: 1.1.0
+version: 1.2.0
 slug: autossh
 description: >-
   'Permanent port forwarding through a simple SSH tunnel'
