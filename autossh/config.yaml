@@ -22,7 +22,7 @@ options:
   ssh_port: 22
   username: autossh
   remote_forwarding:
-    - '127.0.0.1:8123:172.17.0.1:8123'
+    - '127.0.0.1:8123:172.30.32.1:8123'
   other_ssh_options: '-v -N'
   force_keygen: false
 schema:

@@ -86,7 +86,7 @@ hostname: ssh.domain.tld  # or public IP
 ssh_port: 2244
 username: homeassistant
 remote_forwarding:
-  - 127.0.0.1:8001:172.17.0.1:8123
+  - 127.0.0.1:8001:172.30.32.1:8123
 ```
 
 ## Configuration
@@ -107,7 +107,9 @@ Remember to store the generated public key in `~/.ssh/authorized_keys` of this u
 ### Option: `remote_forwarding`
 
 A list of SSH remote forwadings to be applied.
-For this add-on, the most meaningful setting is `127.0.0.1:8123:172.17.0.1:8123`.
+For this add-on, the most meaningful setting is `127.0.0.1:8123:172.30.32.1:8123` if 
+you are running on HASS OS 9.4+. If you are running anything earlier than that, use
+`127.0.0.1:8123:172.17.0.1:8123` instead.
 This line forwards the Lovelace UI to the remote server localhost on the port 8123.
 If you decided to go with `GatewayPorts`, you should know what to change.
 
