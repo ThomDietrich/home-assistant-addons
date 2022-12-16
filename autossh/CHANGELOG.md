@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.0
+
+- Change default port forwarding rule to be compatible with HassOS 9.4+ (https://github.com/home-assistant/operating-system/pull/2246)
+
 ## 1.1.0
 
 Attention: v1.0.9 introduced a change you should pay attention to during an update.
