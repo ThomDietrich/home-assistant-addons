@@ -2,7 +2,7 @@ name: SSH Tunnel & Forwarding
 version: 1.2.0
 slug: autossh
 description: >-
-  'Permanent port forwarding through a simple SSH tunnel'
+  Permanent HA forwarding and domain linking through an SSH tunnel
 url: 'https://github.com/ThomDietrich/home-assistant-addons'
 arch:
   - armhf
