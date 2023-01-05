@@ -107,7 +107,7 @@ Remember to store the generated public key in `~/.ssh/authorized_keys` of this u
 ### Option: `remote_forwarding`
 
 A list of SSH remote forwadings to be applied.
-For this add-on, the most meaningful setting is `127.0.0.1:8123:172.30.32.1:8123` if 
+For this add-on, the most meaningful setting is `127.0.0.1:8123:172.30.32.1:8123` if
 you are running on HASS OS 9.4+. If you are running anything earlier than that, use
 `127.0.0.1:8123:172.17.0.1:8123` instead.
 This line forwards the Lovelace UI to the remote server localhost on the port 8123.
@@ -123,3 +123,14 @@ This is optional and for testing purposes a verbose output enabled by `-v` can b
 A key pair is generated when the container is first initialized in your environment.
 Set this to `true` if you even need to urge to regenerate a key.
 
+## Known issues
+
+### Error on public domain - 400: Bad Request
+
+Need to add to your `/config/configuration.yaml` this config (see https://www.home-assistant.io/integrations/http/#trusted_proxies):
+```yaml
+http:
+  use_x_forwarded_for: true
+  trusted_proxies:
+    - 192.168.88.88 # Replace this with yours internal Home Assistant IP-address
+```
