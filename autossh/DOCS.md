@@ -57,7 +57,7 @@ Consider to set `GatewayPorts clientspecified` in sshd-config if you would like 
 Use a reverse proxy to make ports accessible on public interfaces.
 Software like Caddy can be used to not only set up the redirect, it will also automatically retrieve a Let's Encrypt certificate (https) if you own a domain name.
 
-### Option 3: Docker Based Solution
+#### Option 3: Docker Based Solution
 
 This is the recommeded strategy.
 Set up a dedicated SSH server isolated within a docker container on the remote server. This solution minimizes the attack surface of the overall solution tremendously.
