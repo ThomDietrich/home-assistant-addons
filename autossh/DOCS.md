@@ -30,6 +30,16 @@ On your typical Linux system the public key is added to `~/.ssh/authorized_keys`
 By default, forwarded ports can only be bound to localhost.
 To make it available on a public interface, either reconfigure SSH or set up a reverse proxy. A docker solution is given as the most secure and the cleanest solution overall.
 
+## Local Home Assistant Network Configuration
+
+Please add the following lines to your `configuration.yaml`. For a description of this security measure see: https://www.home-assistant.io/integrations/http/#trusted_proxies
+```yaml
+http:
+  use_x_forwarded_for: true
+  trusted_proxies:
+    - 192.168.0.2  # Replace with the internal IP address of your Home Assistant host
+```
+
 ### SSH GatewayPorts
 
 Consider to set `GatewayPorts clientspecified` in sshd-config if you would like to open ports on other interfaces than localhost.
@@ -122,15 +132,3 @@ This is optional and for testing purposes a verbose output enabled by `-v` can b
 
 A key pair is generated when the container is first initialized in your environment.
 Set this to `true` if you even need to urge to regenerate a key.
-
-## Known issues
-
-### Error on public domain - 400: Bad Request
-
-Need to add to your `/config/configuration.yaml` this config (see https://www.home-assistant.io/integrations/http/#trusted_proxies):
-```yaml
-http:
-  use_x_forwarded_for: true
-  trusted_proxies:
-    - 192.168.88.88 # Replace this with yours internal Home Assistant IP-address
-```
