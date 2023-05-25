@@ -47,14 +47,15 @@ if [ -z "$HOSTNAME" ]; then
 fi
 
 # checking if the local HA instance response
-status_code=$(curl --write-out %{http_code} --silent --output /dev/null $REMOTE_FORWARDING)
-
-if [[ "$status_code" -ne 200 ]] ; then
-  echo "Check failed. $REMOTE_FORWARDING resulted HTTP status_code=$status_code and not 200. Is the address correct?" && exit 1
-else
-  echo "Check passed. $REMOTE_FORWARDING returned HTTP status_code=200"
-fi
-
+for forward in $REMOTE_FORWARDING ; do
+  bashio::log.info "Checking accessibility of $forward..."
+  status_code=$(curl --write-out %{http_code} --silent --output /dev/null $forward)
+  if [[ "$status_code" -ne 200 ]] ; then
+    bashio::log.error "Check failed. $forward resulted HTTP status_code=$status_code and not 200. Is the address correct?" && exit 1
+  else
+    bashio::log.info "Check passed. $forward returned HTTP status_code=200"
+  fi
+done
 
 TEST_COMMAND="/usr/bin/ssh "\
 "-o BatchMode=yes "\
