@@ -46,6 +46,16 @@ if [ -z "$HOSTNAME" ]; then
   exit 1
 fi
 
+# checking if the local HA instance response
+status_code=$(curl --write-out %{http_code} --silent --output /dev/null $REMOTE_FORWARDING)
+
+if [[ "$status_code" -ne 200 ]] ; then
+  echo "Check failed. $REMOTE_FORWARDING resulted HTTP status_code=$status_code and not 200. Is the address correct?" && exit 1
+else
+  echo "Check passed. $REMOTE_FORWARDING returned HTTP status_code=200"
+fi
+
+
 TEST_COMMAND="/usr/bin/ssh "\
 "-o BatchMode=yes "\
 "-o ConnectTimeout=5 "\
