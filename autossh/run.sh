@@ -70,6 +70,9 @@ ssh-keyscan -p $SSH_PORT $HOSTNAME || true
 
 #
 
+# For testing
+ip addr
+
 COMMAND="/usr/bin/autossh "\
 " -M 0 "\
 "-o ServerAliveInterval=30 "\
