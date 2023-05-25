@@ -70,7 +70,7 @@ ssh-keyscan -p $SSH_PORT $HOSTNAME || true
 
 #
 bashio::log.info "The container is connected via the following IP addresses:"
-ip --brief address show
+ip -o address show
 
 COMMAND="/usr/bin/autossh "\
 " -M 0 "\
