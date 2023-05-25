@@ -105,6 +105,7 @@ The respective addon config for this looks similar to this:
 hostname: ssh.domain.tld  # or public IP
 ssh_port: 2222
 username: homeassistant
+TODO
 remote_forwarding:
   - 127.0.0.1:8001:172.30.32.1:8123
 ```
@@ -125,7 +126,7 @@ The username to be connected as on the SSH server.
 Remember to store the generated public key in `~/.ssh/authorized_keys` of this users home.
 
 ### Option: `remote_forwarding`
-
+TODO
 A list of SSH remote forwadings to be applied.
 For this add-on, the most meaningful setting is `127.0.0.1:8123:172.30.32.1:8123` if
 you are running on HASS OS 9.4+. If you are running anything earlier than that, use

@@ -21,15 +21,20 @@ options:
   hostname: ''
   ssh_port: 22
   username: autossh
-  remote_forwarding:
-    - '127.0.0.1:8123:172.30.32.1:8123'
+  forward_local_ip_address: "172.17.0.1"
+  forward_local_port: 8123
+  forward_remote_ip_address: "127.0.0.1"
+  forward_remote_port: 8124
+
   other_ssh_options: '-v -N'
   force_keygen: false
 schema:
   hostname: str
   ssh_port: int
   username: str
-  remote_forwarding:
-    - str
+  local_ip_address: str
+  local_port: int
+  remote_ip_address: str
+  remote_port: int
   other_ssh_options: str
   force_keygen: bool

@@ -8,7 +8,12 @@ HOSTNAME=$(jq --raw-output ".hostname" $CONFIG_PATH)
 SSH_PORT=$(jq --raw-output ".ssh_port" $CONFIG_PATH)
 USERNAME=$(jq --raw-output ".username" $CONFIG_PATH)
 
-REMOTE_FORWARDING=$(jq --raw-output ".remote_forwarding[]" $CONFIG_PATH)
+FORWARD_LOCAL_IP_ADDRESS=$(jq --raw-output ".forward_local_ip_address" $CONFIG_PATH)
+FORWARD_LOCAL_PORT=$(jq --raw-output ".forward_local_port" $CONFIG_PATH)
+FORWARD_REMOTE_IP_ADDRESS=$(jq --raw-output ".forward_remote_ip_address" $CONFIG_PATH)
+FORWARD_REMOTE_PORT=$(jq --raw-output ".forward_remote_port" $CONFIG_PATH)
+REMOTE_FORWARDING="$FORWARD_REMOTE_IP_ADDRESS:$FORWARD_REMOTE_PORT:$FORWARD_LOCAL_IP_ADDRESS:$FORWARD_LOCAL_PORT"
+
 
 OTHER_SSH_OPTIONS=$(jq --raw-output ".other_ssh_options" $CONFIG_PATH)
 FORCE_GENERATION=$(jq --raw-output ".force_keygen" $CONFIG_PATH)
@@ -46,16 +51,14 @@ if [ -z "$HOSTNAME" ]; then
   exit 1
 fi
 
-# checking if the local HA instance response
-for forward in $REMOTE_FORWARDING ; do
-  bashio::log.info "Checking accessibility of $forward..."
-  status_code=$(curl --write-out %{http_code} --silent --output /dev/null $forward)
-  if [[ "$status_code" -ne 200 ]] ; then
-    bashio::log.error "Check failed. $forward resulted HTTP status_code=$status_code and not 200. Is the address correct?" && exit 1
-  else
-    bashio::log.info "Check passed. $forward returned HTTP status_code=200"
-  fi
-done
+local_forward_uri="$FORWARD_LOCAL_IP_ADDRESS:$FORWARD_LOCAL_PORT"
+bashio::log.info "Checking accessibility of $local_forward_uri"
+status_code=$(curl --write-out %{http_code} --silent --output /dev/null $local_forward_uri)
+if [[ "$status_code" -ne 200 ]] ; then
+  bashio::log.error "Check failed. $local_forward_uri resulted HTTP status_code=$status_code and not 200. Is the address correct?" && exit 1
+else
+  bashio::log.info "Check passed. $local_forward_uri returned HTTP status_code=200"
+fi
 
 TEST_COMMAND="/usr/bin/ssh "\
 "-o BatchMode=yes "\
