@@ -34,6 +34,7 @@ else
   bashio::log.info "Authentication key pair restored"
 fi
 
+echo ""
 bashio::log.info "The public key is:"
 cat "${KEY_PATH}/autossh_rsa_key.pub"
 bashio::log.info "Please add this key to '~/.ssh/authorized_keys' on your remote server"
@@ -65,10 +66,12 @@ else
   exit 1
 fi
 
+echo ""
 bashio::log.info "Remote server host keys:"
 ssh-keyscan -p $SSH_PORT $HOSTNAME || true
 
 #
+echo ""
 bashio::log.info "The container is connected via the following IP addresses:"
 ip -o address show
 
@@ -90,6 +93,9 @@ fi
 
 COMMAND="${COMMAND} ${OTHER_SSH_OPTIONS}"
 
-bashio::log.info "Preparations done. Executing command: ${COMMAND}"
+echo ""
+bashio::log.info "Preparations done."
+echo ""
+bashio::log.info "Executing command: ${COMMAND}"
 /usr/bin/autossh -V
 exec ${COMMAND}
