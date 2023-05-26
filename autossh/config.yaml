@@ -21,7 +21,7 @@ options:
   hostname: ''
   ssh_port: 22
   username: autossh
-  forward_local_ip_address: "172.17.0.1"
+  forward_local_ip_address: "172.30.232.1"
   forward_local_port: 8123
   forward_remote_ip_address: "127.0.0.1"
   forward_remote_port: 8124
