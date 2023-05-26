@@ -33,7 +33,7 @@ schema:
   ssh_port: int
   username: str
   local_ip_address: str?
-  local_port: int
+  local_port: int?
   remote_ip_address: str
   remote_port: int
   other_ssh_options: str
