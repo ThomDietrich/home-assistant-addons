@@ -23,7 +23,7 @@ options:
   username: autossh
   remote_ip_address: "127.0.0.1"
   remote_port: 8001
-  local_ip_address: "172.17.0.1"
+  local_ip_address: "172.30.232.1"
   local_port: 8123
 
   other_ssh_options: '-v -N'
