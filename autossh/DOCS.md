@@ -105,9 +105,10 @@ The respective addon config for this looks similar to this:
 hostname: ssh.domain.tld  # or public IP
 ssh_port: 2222
 username: homeassistant
-TODO
-remote_forwarding:
-  - 127.0.0.1:8001:172.30.32.1:8123
+remote_ip_address: "127.0.0.1"
+remote_port: 8001
+local_ip_address: "172.17.0.1"
+local_port: 8123
 ```
 
 ## Configuration
@@ -125,13 +126,26 @@ The SSH port on your SSH server (typically 22).
 The username to be connected as on the SSH server.
 Remember to store the generated public key in `~/.ssh/authorized_keys` of this users home.
 
-### Option: `remote_forwarding`
-TODO
-A list of SSH remote forwadings to be applied.
-For this add-on, the most meaningful setting is `127.0.0.1:8123:172.30.32.1:8123` if
-you are running on HASS OS 9.4+. If you are running anything earlier than that, use
-`127.0.0.1:8123:172.17.0.1:8123` instead.
-This line forwards the Lovelace UI to the remote server localhost on the port 8123.
+### Option: `remote_ip_address`
+
+This option specifies the IP address of the remote server to which you wish to forward your SSH connections. This will typically be set to `127.0.0.1` to denote the localhost of the remote server.
+
+### Option: `remote_port`
+
+This option specifies the port number on the remote server that you wish to forward your SSH connections to. In most cases for this add-on, you'll want to set this to `8123`.
+
+If you decided to go with `GatewayPorts`, you should know what to change.
+
+### Option: `local_ip_address` (optional)
+
+This option specifies the IP address of wherever Home Assistant listens to on the local machine from which the SSH connection is being established.
+
+If you are running on standard HASS, you want to set this to the docker container's IP address of home assistant. On the HASS OS 9.4+, you should set this to `172.30.32.1`. If you are running anything earlier than HASS OS 9.4, use `172.17.0.1` instead.
+
+### Option: `local_port` (optional)
+
+This option specifies the local port of wherever Home Assistant listens to on the machine from which the SSH connection is being established.
+
 If you decided to go with `GatewayPorts`, you should know what to change.
 
 ### Option: `other_ssh_options`
