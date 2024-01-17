@@ -12,7 +12,6 @@ REMOTE_FORWARDING=$(jq --raw-output ".remote_forwarding[]" $CONFIG_PATH)
 
 OTHER_SSH_OPTIONS=$(jq --raw-output ".other_ssh_options" $CONFIG_PATH)
 FORCE_GENERATION=$(jq --raw-output ".force_keygen" $CONFIG_PATH)
-ENABLE_CONNECTION_TEST=$(jq --raw-output ".enable_connection_test" $CONFIG_PATH)
 
 #
 
@@ -47,29 +46,24 @@ if [ -z "$HOSTNAME" ]; then
   exit 1
 fi
 
-# Only run test if user wants to
-if [ "$ENABLE_CONNECTION_TEST" != "false" ]; then
-  TEST_COMMAND="/usr/bin/ssh "\
-  "-o BatchMode=yes "\
-  "-o ConnectTimeout=5 "\
-  "-o PubkeyAuthentication=no "\
-  "-o PasswordAuthentication=no "\
-  "-o KbdInteractiveAuthentication=no "\
-  "-o ChallengeResponseAuthentication=no "\
-  "-o StrictHostKeyChecking=no "\
-  "-p ${SSH_PORT} -t -t "\
-  "test@${HOSTNAME} "\
-  "2>&1 || true"
+TEST_COMMAND="/usr/bin/ssh "\
+"-o BatchMode=yes "\
+"-o ConnectTimeout=5 "\
+"-o PubkeyAuthentication=no "\
+"-o PasswordAuthentication=no "\
+"-o KbdInteractiveAuthentication=no "\
+"-o ChallengeResponseAuthentication=no "\
+"-o StrictHostKeyChecking=no "\
+"-p ${SSH_PORT} -t -t "\
+"test@${HOSTNAME} "\
+"2>&1 || true"
 
-  if eval "${TEST_COMMAND}" | grep -q "Permission denied"; then
-    bashio::log.info "Testing SSH connection... SSH service reachable on remote server"
-  else
-    eval "${TEST_COMMAND}"
-    bashio::log.error "SSH service can't be reached on remote server"
-    exit 1
-  fi
-else  
-    bashio::log.info "Test SSH connection disabled by user configuration!"
+if eval "${TEST_COMMAND}" | grep -q "Permission denied"; then
+  bashio::log.info "Testing SSH connection... SSH service reachable on remote server"
+else
+  eval "${TEST_COMMAND}"
+  bashio::log.error "SSH service can't be reached on remote server"
+  exit 1
 fi
 
 echo ""
