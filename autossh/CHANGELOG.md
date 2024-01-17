@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.1
+
+- Switched from the invalid test user 'test' to the known '$USERNAME' for the sake of fail2ban: https://github.com/ThomDietrich/home-assistant-addons/pull/18
+- Added the printout of local IPs to help with https://github.com/ThomDietrich/home-assistant-addons/issues/14
+
 ## 1.2.0
 
 - Changed default port forwarding rule to be compatible with HassOS 9.4+ (https://github.com/home-assistant/operating-system/pull/2246)
