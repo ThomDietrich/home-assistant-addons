@@ -25,7 +25,6 @@ options:
     - '127.0.0.1:8123:172.30.32.1:8123'
   other_ssh_options: '-v -N'
   force_keygen: false
-  enable_connection_test: true  
 schema:
   hostname: str
   ssh_port: int
@@ -34,4 +33,3 @@ schema:
     - str
   other_ssh_options: str
   force_keygen: bool
-  enable_connection_test: bool
