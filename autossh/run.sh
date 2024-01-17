@@ -55,7 +55,7 @@ TEST_COMMAND="/usr/bin/ssh "\
 "-o ChallengeResponseAuthentication=no "\
 "-o StrictHostKeyChecking=no "\
 "-p ${SSH_PORT} -t -t "\
-"test@${HOSTNAME} "\
+"${USERNAME}@${HOSTNAME} "\
 "2>&1 || true"
 
 if eval "${TEST_COMMAND}" | grep -q "Permission denied"; then
