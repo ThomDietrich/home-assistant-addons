@@ -8,7 +8,12 @@ HOSTNAME=$(jq --raw-output ".hostname" $CONFIG_PATH)
 SSH_PORT=$(jq --raw-output ".ssh_port" $CONFIG_PATH)
 USERNAME=$(jq --raw-output ".username" $CONFIG_PATH)
 
-REMOTE_FORWARDING=$(jq --raw-output ".remote_forwarding[]" $CONFIG_PATH)
+FORWARD_REMOTE_IP_ADDRESS=$(jq --raw-output ".forward_remote_ip_address" $CONFIG_PATH)
+FORWARD_REMOTE_PORT=$(jq --raw-output ".forward_remote_port" $CONFIG_PATH)
+FORWARD_LOCAL_IP_ADDRESS=$(jq --raw-output ".forward_local_ip_address" $CONFIG_PATH)
+FORWARD_LOCAL_PORT=$(jq --raw-output ".forward_local_port" $CONFIG_PATH)
+REMOTE_FORWARDING="$FORWARD_REMOTE_IP_ADDRESS:$FORWARD_REMOTE_PORT:$FORWARD_LOCAL_IP_ADDRESS:$FORWARD_LOCAL_PORT"
+
 
 OTHER_SSH_OPTIONS=$(jq --raw-output ".other_ssh_options" $CONFIG_PATH)
 FORCE_GENERATION=$(jq --raw-output ".force_keygen" $CONFIG_PATH)
@@ -44,6 +49,15 @@ bashio::log.info "Please add this key to '~/.ssh/authorized_keys' on your remote
 if [ -z "$HOSTNAME" ]; then
   bashio::log.error "Please set 'hostname' in your config to the address of your remote server"
   exit 1
+fi
+
+local_forward_uri="$FORWARD_LOCAL_IP_ADDRESS:$FORWARD_LOCAL_PORT"
+bashio::log.info "Testing local port definition at $local_forward_uri..."
+status_code=$(curl --write-out %{http_code} --silent --output /dev/null $local_forward_uri)
+if [[ "$status_code" -ne 200 ]] ; then
+  bashio::log.error "The test failed. $local_forward_uri resulted HTTP status_code=$status_code and not 200. Is the address correct?" && exit 1
+else
+  bashio::log.info "Testing local port definition... Home Assistant web frontend can be reached"
 fi
 
 TEST_COMMAND="/usr/bin/ssh "\
@@ -86,9 +100,7 @@ COMMAND="/usr/bin/autossh "\
 "${USERNAME}@${HOSTNAME}"
 
 if [ ! -z "${REMOTE_FORWARDING}" ]; then
-  while read -r LINE; do
-    COMMAND="${COMMAND} -R ${LINE}"
-  done <<< "${REMOTE_FORWARDING}"
+    COMMAND="${COMMAND} -R ${REMOTE_FORWARDING}"
 fi
 
 COMMAND="${COMMAND} ${OTHER_SSH_OPTIONS}"
