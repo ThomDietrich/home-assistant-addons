@@ -96,6 +96,9 @@ COMMAND="${COMMAND} ${OTHER_SSH_OPTIONS}"
 echo ""
 bashio::log.info "Preparations done."
 echo ""
-bashio::log.info "Executing command: ${COMMAND}"
-/usr/bin/autossh -V
-exec ${COMMAND}
+
+while true; do
+  bashio::log.info "Executing command: ${COMMAND}"
+  /usr/bin/autossh -V
+  exec ${COMMAND}
+done
