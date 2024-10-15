@@ -8,10 +8,10 @@ HOSTNAME=$(jq --raw-output ".hostname" $CONFIG_PATH)
 SSH_PORT=$(jq --raw-output ".ssh_port" $CONFIG_PATH)
 USERNAME=$(jq --raw-output ".username" $CONFIG_PATH)
 
-FORWARD_REMOTE_IP_ADDRESS=$(jq --raw-output ".forward_remote_ip_address" $CONFIG_PATH)
-FORWARD_REMOTE_PORT=$(jq --raw-output ".forward_remote_port" $CONFIG_PATH)
-FORWARD_LOCAL_IP_ADDRESS=$(jq --raw-output ".forward_local_ip_address" $CONFIG_PATH)
-FORWARD_LOCAL_PORT=$(jq --raw-output ".forward_local_port" $CONFIG_PATH)
+FORWARD_REMOTE_IP_ADDRESS=$(jq --raw-output ".remote_ip_address" $CONFIG_PATH)
+FORWARD_REMOTE_PORT=$(jq --raw-output ".remote_port" $CONFIG_PATH)
+FORWARD_LOCAL_IP_ADDRESS=$(jq --raw-output ".local_ip_address" $CONFIG_PATH)
+FORWARD_LOCAL_PORT=$(jq --raw-output ".local_port" $CONFIG_PATH)
 CUSTOM_REMOTE_FORWARDING=$(jq --raw-output ".remote_forwarding[]" $CONFIG_PATH)
 if [ -z "$FORWARD_LOCAL_IP_ADDRESS" ]; then FORWARD_LOCAL_IP_ADDRESS = "172.30.32.1"; fi
 if [ -z "$FORWARD_LOCAL_PORT" ]; then FORWARD_LOCAL_PORT = 8123; fi
