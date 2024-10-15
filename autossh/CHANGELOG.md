@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.0
+
+- Added a more streamlined and intuitive way to define the forwarding local/remote sockets: https://github.com/ThomDietrich/home-assistant-addons/pull/16
+
 ## 1.2.1
 
 - Switched from the invalid test user 'test' to the known '$USERNAME' for the sake of fail2ban: https://github.com/ThomDietrich/home-assistant-addons/pull/18

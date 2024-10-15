@@ -105,8 +105,8 @@ The respective addon config for this looks similar to this:
 hostname: ssh.domain.tld  # or public IP
 ssh_port: 2222
 username: homeassistant
-remote_forwarding:
-  - 127.0.0.1:8001:172.30.32.1:8123
+remote_ip_address: "127.0.0.1"
+remote_port: 8123
 ```
 
 ## Configuration
@@ -124,14 +124,36 @@ The SSH port on your SSH server (typically 22).
 The username to be connected as on the SSH server.
 Remember to store the generated public key in `~/.ssh/authorized_keys` of this users home.
 
-### Option: `remote_forwarding`
+### Option: `remote_ip_address`
 
-A list of SSH remote forwadings to be applied.
-For this add-on, the most meaningful setting is `127.0.0.1:8123:172.30.32.1:8123` if
-you are running on HASS OS 9.4+. If you are running anything earlier than that, use
-`127.0.0.1:8123:172.17.0.1:8123` instead.
-This line forwards the Lovelace UI to the remote server localhost on the port 8123.
-If you decided to go with `GatewayPorts`, you should know what to change.
+The IP address ON the remote server, on which you wish to provide the forwarded IP-port-socket (your HA UI).
+This will typically be `127.0.0.1` to denote the localhost of the remote server.
+Alternatively you may want to provide the public IP of your server.
+Please refer to "Remote Server Configuration" if in doubt.
+
+### Option: `remote_port`
+
+The port number ON the remote server, on which you wish to provide the forwarded IP-port-socket (your HA UI).
+You can set this port however you like. It's totally fine to keep the HA-typical port `8123`.
+
+### Option: `local_ip_address` (optional)
+
+This option specifies the IP address of wherever Home Assistant listens to on the local machine from which the SSH connection is being established.
+
+If you are running on standard HASS, you want to set this to the docker container's IP address of home assistant.
+On the HASS OS 9.4+, you should set this to `172.30.32.1`.
+If you are running anything earlier than HASS OS 9.4, use `172.17.0.1` instead.
+The addon will also post all interface info during startup.
+
+### Option: `local_port` (optional)
+
+This option specifies the local port of wherever Home Assistant listens to on the machine from which the SSH connection is being established.
+
+### Option: `remote_forwarding` (optional)
+
+A list of generic SSH remote forwadings to be applied.
+For this add-on, the most common setting was `127.0.0.1:8123:172.30.32.1:8123`, which forwards the Lovelace UI to the remote server.
+However, this forwarding rule can conveniently be achieved by the use of `remote_ip_address` and `remote_port`.
 
 ### Option: `other_ssh_options`
 

@@ -8,7 +8,18 @@ HOSTNAME=$(jq --raw-output ".hostname" $CONFIG_PATH)
 SSH_PORT=$(jq --raw-output ".ssh_port" $CONFIG_PATH)
 USERNAME=$(jq --raw-output ".username" $CONFIG_PATH)
 
-REMOTE_FORWARDING=$(jq --raw-output ".remote_forwarding[]" $CONFIG_PATH)
+FORWARD_REMOTE_IP_ADDRESS=$(jq --raw-output ".forward_remote_ip_address" $CONFIG_PATH)
+FORWARD_REMOTE_PORT=$(jq --raw-output ".forward_remote_port" $CONFIG_PATH)
+FORWARD_LOCAL_IP_ADDRESS=$(jq --raw-output ".forward_local_ip_address" $CONFIG_PATH)
+FORWARD_LOCAL_PORT=$(jq --raw-output ".forward_local_port" $CONFIG_PATH)
+CUSTOM_REMOTE_FORWARDING=$(jq --raw-output ".remote_forwarding[]" $CONFIG_PATH)
+if [ -z "$FORWARD_LOCAL_IP_ADDRESS" ]; then FORWARD_LOCAL_IP_ADDRESS = "172.30.32.1"; fi
+if [ -z "$FORWARD_LOCAL_PORT" ]; then FORWARD_LOCAL_PORT = 8123; fi
+
+FORWARDING_STRING="-R $FORWARD_REMOTE_IP_ADDRESS:$FORWARD_REMOTE_PORT:$FORWARD_LOCAL_IP_ADDRESS:$FORWARD_LOCAL_PORT"
+while read -r LINE; do
+  FORWARDING_STRING="${FORWARDING_STRING} -R ${LINE}"
+done <<< "${CUSTOM_REMOTE_FORWARDING}"
 
 OTHER_SSH_OPTIONS=$(jq --raw-output ".other_ssh_options" $CONFIG_PATH)
 FORCE_GENERATION=$(jq --raw-output ".force_keygen" $CONFIG_PATH)
@@ -44,6 +55,15 @@ bashio::log.info "Please add this key to '~/.ssh/authorized_keys' on your remote
 if [ -z "$HOSTNAME" ]; then
   bashio::log.error "Please set 'hostname' in your config to the address of your remote server"
   exit 1
+fi
+
+local_forward_socket="$FORWARD_LOCAL_IP_ADDRESS:$FORWARD_LOCAL_PORT"
+status_code=$(curl --write-out %{http_code} --silent --output /dev/null $local_forward_socket)
+if [[ "$status_code" -ne 200 ]] ; then
+  bashio::log.error "Testing Home Assistant socket at '$local_forward_socket'... Failed with HTTP status_code $status_code. Please check your config and consult the addon documentation."
+  exit 1
+else
+  bashio::log.info "Testing Home Assistant socket at '$local_forward_socket'... Web frontend reachable on local system"
 fi
 
 TEST_COMMAND="/usr/bin/ssh "\
@@ -85,13 +105,7 @@ COMMAND="/usr/bin/autossh "\
 "-i ${KEY_PATH}/autossh_rsa_key "\
 "${USERNAME}@${HOSTNAME}"
 
-if [ ! -z "${REMOTE_FORWARDING}" ]; then
-  while read -r LINE; do
-    COMMAND="${COMMAND} -R ${LINE}"
-  done <<< "${REMOTE_FORWARDING}"
-fi
-
-COMMAND="${COMMAND} ${OTHER_SSH_OPTIONS}"
+COMMAND="${COMMAND} ${FORWARDING_STRING} ${OTHER_SSH_OPTIONS}"
 
 echo ""
 bashio::log.info "Preparations done."
