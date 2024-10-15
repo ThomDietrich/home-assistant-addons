@@ -115,4 +115,7 @@ while true; do
   bashio::log.info "Executing command: ${COMMAND}"
   /usr/bin/autossh -V
   exec ${COMMAND}
+  echo ""
+  bashio::log.error "SSH service seems to have crashed. Trying to reconnect..."
+  echo ""
 done
