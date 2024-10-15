@@ -57,18 +57,22 @@ bashio::log.info "Please add this key to '~/.ssh/authorized_keys' on your remote
 #
 
 if [ -z "$HOSTNAME" ]; then
+  echo ""
   bashio::log.error "Please set 'hostname' in your config to the address of your remote server"
   exit 1
 fi
 
-#local_forward_socket="$FORWARD_LOCAL_IP_ADDRESS:$FORWARD_LOCAL_PORT"
-#status_code=$(curl --write-out %{http_code} --silent --output /dev/null $local_forward_socket)
-#if [[ "$status_code" -ne 200 ]] ; then
-#  bashio::log.error "Testing Home Assistant socket at '$local_forward_socket'... Failed with HTTP status_code $status_code. Please check your config and consult the addon documentation."
-#  exit 1
-#else
-#  bashio::log.info "Testing Home Assistant socket at '$local_forward_socket'... Web frontend reachable on local system"
-#fi
+echo ""
+which curl
+/usr/bin/curl --write-out %{http_code} --silent --output /dev/null $local_forward_socket
+local_forward_socket="$FORWARD_LOCAL_IP_ADDRESS:$FORWARD_LOCAL_PORT"
+status_code=$(/usr/bin/curl --write-out %{http_code} --silent --output /dev/null $local_forward_socket)
+if [[ "$status_code" -ne 200 ]] ; then
+  bashio::log.error "Testing Home Assistant socket at '$local_forward_socket'... Failed with HTTP status_code $status_code. Please check your config and consult the addon documentation."
+  exit 1
+else
+  bashio::log.info "Testing Home Assistant socket at '$local_forward_socket'... Web frontend reachable on local system"
+fi
 
 TEST_COMMAND="/usr/bin/ssh "\
 "-o BatchMode=yes "\
@@ -82,11 +86,12 @@ TEST_COMMAND="/usr/bin/ssh "\
 "${USERNAME}@${HOSTNAME} "\
 "2>&1 || true"
 
+echo ""
 if eval "${TEST_COMMAND}" | grep -q "Permission denied"; then
   bashio::log.info "Testing SSH connection... SSH service reachable on remote server"
 else
   eval "${TEST_COMMAND}"
-  bashio::log.error "SSH service can't be reached on remote server"
+  bashio::log.error "SSH service can't be reached on the remote server"
   exit 1
 fi
 
