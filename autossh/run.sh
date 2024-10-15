@@ -60,10 +60,10 @@ fi
 local_forward_socket="$FORWARD_LOCAL_IP_ADDRESS:$FORWARD_LOCAL_PORT"
 status_code=$(curl --write-out %{http_code} --silent --output /dev/null $local_forward_socket)
 if [[ "$status_code" -ne 200 ]] ; then
-  bashio::log.error "Testing local port definition at '$local_forward_socket'... Failed with HTTP status_code $status_code. Please check your config and consult the addon documentation."
+  bashio::log.error "Testing Home Assistant socket at '$local_forward_socket'... Failed with HTTP status_code $status_code. Please check your config and consult the addon documentation."
   exit 1
 else
-  bashio::log.info "Testing local port definition at '$local_forward_socket'... Home Assistant web frontend can be reached"
+  bashio::log.info "Testing Home Assistant socket at '$local_forward_socket'... Web frontend reachable on local system"
 fi
 
 TEST_COMMAND="/usr/bin/ssh "\
