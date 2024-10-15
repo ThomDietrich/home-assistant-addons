@@ -92,7 +92,7 @@ services:
       traefik.http.routers.homeassistant-myhome.rule: Host(`myhome.domain.tld`)
       traefik.http.routers.homeassistant-myhome.tls.certresolver: resolver-gandi
       traefik.http.routers.homeassistant-myhome.service: homeassistant-myhome
-      traefik.http.services.homeassistant-myhome.loadbalancer.server.port: 8001
+      traefik.http.services.homeassistant-myhome.loadbalancer.server.port: 8123
 
 networks:
   traefik:
@@ -102,7 +102,7 @@ networks:
 The respective addon config for this looks similar to this:
 
 ```yaml
-hostname: ssh.domain.tld  # or public IP
+hostname: 1.2.3.4  # or public domain
 ssh_port: 2222
 username: homeassistant
 remote_ip_address: "127.0.0.1"
@@ -140,9 +140,8 @@ You can set this port however you like. It's totally fine to keep the HA-typical
 
 This option specifies the IP address of wherever Home Assistant listens to on the local machine from which the SSH connection is being established.
 
-If you are running on standard HASS, you want to set this to the docker container's IP address of home assistant.
-On the HASS OS 9.4+, you should set this to `172.30.32.1`.
-If you are running anything earlier than HASS OS 9.4, use `172.17.0.1` instead.
+If you are running on standard HASS and are experiencing issues, try to set this to `home-assistant`.
+On the HASS OS 9.4+, the corresponding IP address should be `172.30.32.1`, earlier than HASS OS 9.4 used `172.17.0.1` instead.
 The addon will also post all interface info during startup.
 
 ### Option: `local_port` (optional)
