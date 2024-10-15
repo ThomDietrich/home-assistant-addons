@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.3.0
+- Added a more streamlined and more intuitive way to define the forwarding local/remote sockets. Thanks to @hnykda https://github.com/ThomDietrich/home-assistant-addons/pull/16
+
 ## 1.2.0
 
 - Changed default port forwarding rule to be compatible with HassOS 9.4+ (https://github.com/home-assistant/operating-system/pull/2246)
