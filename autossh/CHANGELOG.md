@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.3.1
+
+- **Existing Users:** You can now replace the obsolete remote forwarding setting by dedicated remote socket settings  
+- Check the connectivity of the local socket, thanks to @hnykda
+
 ## 1.3.0
 
 - Added a more streamlined and intuitive way to define the forwarding local/remote sockets: https://github.com/ThomDietrich/home-assistant-addons/pull/16
