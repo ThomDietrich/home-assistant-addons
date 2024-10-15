@@ -19,8 +19,9 @@ fi
 if [ -z "$FORWARD_LOCAL_PORT" ] || [ "$FORWARD_LOCAL_PORT" = "null" ]; then
   FORWARD_LOCAL_PORT=8123
 fi
-
-FORWARDING_STRING="-R ${FORWARD_REMOTE_IP_ADDRESS}:${FORWARD_REMOTE_PORT}:${FORWARD_LOCAL_IP_ADDRESS}:${FORWARD_LOCAL_PORT}"
+FORWARD_LOCAL_SOCKET="${FORWARD_LOCAL_IP_ADDRESS}:${FORWARD_LOCAL_PORT}"
+FORWARD_REMOTE_SOCKET="${FORWARD_REMOTE_IP_ADDRESS}:${FORWARD_REMOTE_PORT}"
+FORWARDING_STRING="-R ${FORWARD_REMOTE_SOCKET}:${FORWARD_LOCAL_SOCKET}"
 while read -r LINE; do
   FORWARDING_STRING="${FORWARDING_STRING} -R ${LINE}"
 done <<< "${CUSTOM_REMOTE_FORWARDING}"
@@ -64,14 +65,13 @@ fi
 
 echo ""
 which curl
-/usr/bin/curl --write-out %{http_code} --silent --output /dev/null $local_forward_socket
-local_forward_socket="$FORWARD_LOCAL_IP_ADDRESS:$FORWARD_LOCAL_PORT"
-status_code=$(/usr/bin/curl --write-out %{http_code} --silent --output /dev/null $local_forward_socket)
+/usr/bin/curl --write-out %{http_code} --silent --output /dev/null ${FORWARD_LOCAL_SOCKET}
+status_code=$(/usr/bin/curl --write-out %{http_code} --silent --output /dev/null ${FORWARD_LOCAL_SOCKET})
 if [[ "$status_code" -ne 200 ]] ; then
-  bashio::log.error "Testing Home Assistant socket at '$local_forward_socket'... Failed with HTTP status_code $status_code. Please check your config and consult the addon documentation."
+  bashio::log.error "Testing Home Assistant socket at '$FORWARD_LOCAL_SOCKET'... Failed with HTTP status_code $status_code. Please check your config and consult the addon documentation."
   exit 1
 else
-  bashio::log.info "Testing Home Assistant socket at '$local_forward_socket'... Web frontend reachable on local system"
+  bashio::log.info "Testing Home Assistant socket at '$FORWARD_LOCAL_SOCKET'... Web frontend reachable on local system"
 fi
 
 TEST_COMMAND="/usr/bin/ssh "\
