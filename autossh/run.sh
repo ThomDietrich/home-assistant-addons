@@ -12,8 +12,15 @@ FORWARD_REMOTE_IP_ADDRESS=$(jq --raw-output ".forward_remote_ip_address" $CONFIG
 FORWARD_REMOTE_PORT=$(jq --raw-output ".forward_remote_port" $CONFIG_PATH)
 FORWARD_LOCAL_IP_ADDRESS=$(jq --raw-output ".forward_local_ip_address" $CONFIG_PATH)
 FORWARD_LOCAL_PORT=$(jq --raw-output ".forward_local_port" $CONFIG_PATH)
-REMOTE_FORWARDING="$FORWARD_REMOTE_IP_ADDRESS:$FORWARD_REMOTE_PORT:$FORWARD_LOCAL_IP_ADDRESS:$FORWARD_LOCAL_PORT"
+CUSTOM_REMOTE_FORWARDING=$(jq --raw-output ".remote_forwarding[]" $CONFIG_PATH)
+if [ -z "$FORWARD_LOCAL_IP_ADDRESS" ]; then FORWARD_LOCAL_IP_ADDRESS = "172.30.32.1"; fi
+if [ -z "$FORWARD_LOCAL_PORT" ]; then FORWARD_LOCAL_PORT = 8123; fi
 
+FORWARDING_STRING="-R $FORWARD_REMOTE_IP_ADDRESS:$FORWARD_REMOTE_PORT:$FORWARD_LOCAL_IP_ADDRESS:$FORWARD_LOCAL_PORT"
+while read -r LINE; do
+  FORWARDING_STRING="${FORWARDING_STRING} -R ${CUSTOM_REMOTE_FORWARDING}"
+  FORWARDING_STRING="${FORWARDING_STRING} -R ${LINE}"
+done <<< "${CUSTOM_REMOTE_FORWARDING}"
 
 OTHER_SSH_OPTIONS=$(jq --raw-output ".other_ssh_options" $CONFIG_PATH)
 FORCE_GENERATION=$(jq --raw-output ".force_keygen" $CONFIG_PATH)
@@ -51,13 +58,13 @@ if [ -z "$HOSTNAME" ]; then
   exit 1
 fi
 
-local_forward_uri="$FORWARD_LOCAL_IP_ADDRESS:$FORWARD_LOCAL_PORT"
-bashio::log.info "Testing local port definition at $local_forward_uri..."
-status_code=$(curl --write-out %{http_code} --silent --output /dev/null $local_forward_uri)
+local_forward_socket="$FORWARD_LOCAL_IP_ADDRESS:$FORWARD_LOCAL_PORT"
+status_code=$(curl --write-out %{http_code} --silent --output /dev/null $local_forward_socket)
 if [[ "$status_code" -ne 200 ]] ; then
-  bashio::log.error "The test failed. $local_forward_uri resulted HTTP status_code=$status_code and not 200. Is the address correct?" && exit 1
+  bashio::log.error "Testing local port definition at '$local_forward_socket'... Failed with HTTP status_code $status_code. Please check your config and consult the addon documentation."
+  exit 1
 else
-  bashio::log.info "Testing local port definition... Home Assistant web frontend can be reached"
+  bashio::log.info "Testing local port definition at '$local_forward_socket'... Home Assistant web frontend can be reached"
 fi
 
 TEST_COMMAND="/usr/bin/ssh "\
