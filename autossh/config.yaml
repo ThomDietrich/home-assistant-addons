@@ -23,9 +23,6 @@ options:
   username: autossh
   remote_ip_address: "127.0.0.1"
   remote_port: 8123
-  local_ip_address: "172.30.232.1"
-  local_port: 8123
-  remote_forwarding: []
   other_ssh_options: '-v -N'
   force_keygen: false
 schema:
