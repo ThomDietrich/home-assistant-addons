@@ -3,6 +3,7 @@
 ## 1.3.0
 
 - Added a more streamlined and intuitive way to define the forwarding local/remote sockets: https://github.com/ThomDietrich/home-assistant-addons/pull/16
+- Wrapped the main command in an infinite loop to survive temporary connection issues (https://github.com/ThomDietrich/home-assistant-addons/issues/17): https://github.com/Rjevski/home-assistant-addons/pull/1 
 
 ## 1.2.1
 
