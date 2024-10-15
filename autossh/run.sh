@@ -64,11 +64,9 @@ if [ -z "$HOSTNAME" ]; then
 fi
 
 echo ""
-which curl
-/usr/bin/curl --write-out %{http_code} --silent --output /dev/null ${FORWARD_LOCAL_SOCKET}
-status_code=$(/usr/bin/curl --write-out %{http_code} --silent --output /dev/null ${FORWARD_LOCAL_SOCKET})
-if [[ "$status_code" -ne 200 ]] ; then
-  bashio::log.error "Testing Home Assistant socket at '$FORWARD_LOCAL_SOCKET'... Failed with HTTP status_code $status_code. Please check your config and consult the addon documentation."
+STATUS_CODE=$(/usr/bin/curl --write-out %{http_code} --silent --output /dev/null ${FORWARD_LOCAL_SOCKET})
+if [[ "$STATUS_CODE" -ne 200 ]] ; then
+  bashio::log.error "Testing Home Assistant socket at '$FORWARD_LOCAL_SOCKET'... Failed with HTTP status_code $STATUS_CODE. Please check your config and consult the addon documentation."
   exit 1
 else
   bashio::log.info "Testing Home Assistant socket at '$FORWARD_LOCAL_SOCKET'... Web frontend reachable on local system"
@@ -105,7 +103,7 @@ bashio::log.info "The container is connected via the following IP addresses:"
 ip -o address show
 
 COMMAND="/usr/bin/autossh "\
-" -M 0 "\
+"-M 0 "\
 "-o ServerAliveInterval=30 "\
 "-o ServerAliveCountMax=3 "\
 "-o StrictHostKeyChecking=no "\
