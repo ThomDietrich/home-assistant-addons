@@ -7,3 +7,4 @@ This forms yet another way to make the Lovelace UI and other services accessible
 
 This add-on is only useful to those with access to a publicly available SSH server and some administrative privileges on that system.
 
+Seen on: https://community.home-assistant.io/t/home-assistant-add-on-autossh-cloud-vpn-alternative/255444
