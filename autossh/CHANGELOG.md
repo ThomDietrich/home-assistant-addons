@@ -2,6 +2,7 @@
 
 ## 1.3.1
 
+- **Warning:** This version includes changes to the port forwarding configuration. Please run the update from the local network.
 - **Existing Users:** You can now replace the obsolete remote forwarding setting by dedicated remote socket settings  
 - Check the connectivity of the local socket, thanks to @hnykda
 
