@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.2
+
+- Fix to include `remote_forwarding`. This was always intended and was a bug introduced last minute
+
 ## 1.3.1
 
 - **Warning:** This version includes changes to the port forwarding configuration. Please run the update from the local network.
