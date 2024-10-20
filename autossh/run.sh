@@ -67,7 +67,7 @@ fi
 
 echo ""
 bashio::log.info "Testing Home Assistant socket at '${FORWARD_LOCAL_SOCKET}'..."
-STATUS_CODE=$(/usr/bin/curl --write-out %{http_code} --silent --output /dev/null ${FORWARD_LOCAL_SOCKET})
+STATUS_CODE=$(/usr/bin/curl --write-out %{http_code} --silent --insecure --output /dev/null ${FORWARD_LOCAL_SOCKET})
 echo "${STATUS_CODE}"
 if [[ "${STATUS_CODE}" -ne 200 ]] ; then
   bashio::log.error "Testing Home Assistant socket at '${FORWARD_LOCAL_SOCKET}'... Failed with HTTP status_code ${STATUS_CODE}. Please check your config and consult the addon documentation."
