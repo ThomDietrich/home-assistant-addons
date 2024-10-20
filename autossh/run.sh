@@ -66,14 +66,24 @@ if [ -z "$HOSTNAME" ]; then
 fi
 
 echo ""
-bashio::log.info "Testing Home Assistant socket at '${FORWARD_LOCAL_SOCKET}'..."
-STATUS_CODE=$(/usr/bin/curl --write-out %{http_code} --silent --output /dev/null ${FORWARD_LOCAL_SOCKET})
-echo "${STATUS_CODE}"
-if [[ "${STATUS_CODE}" -ne 200 ]] ; then
-  bashio::log.error "Testing Home Assistant socket at '${FORWARD_LOCAL_SOCKET}'... Failed with HTTP status_code ${STATUS_CODE}. Please check your config and consult the addon documentation."
+bashio::log.info "Testing Home Assistant socket at '${FORWARD_LOCAL_SOCKET}' over HTTP..."
+HTTP_STATUS_CODE=$(/usr/bin/curl --write-out %{http_code} --silent --output /dev/null http://${FORWARD_LOCAL_SOCKET})
+echo "HTTP Status Code: ${HTTP_STATUS_CODE}"
+
+bashio::log.info "Testing Home Assistant socket at '${FORWARD_LOCAL_SOCKET}' over HTTPS..."
+HTTPS_STATUS_CODE=$(/usr/bin/curl --write-out %{http_code} --silent --insecure --output /dev/null https://${FORWARD_LOCAL_SOCKET})
+echo "HTTPS Status Code: ${HTTPS_STATUS_CODE}"
+
+if [[ "${HTTP_STATUS_CODE}" -ne 200 && "${HTTPS_STATUS_CODE}" -ne 200 ]] ; then
+  bashio::log.error "Testing Home Assistant socket at '${FORWARD_LOCAL_SOCKET}'... Failed with HTTP status_code ${HTTP_STATUS_CODE} and HTTPS status_code ${HTTPS_STATUS_CODE}. Please check your config and consult the addon documentation."
   exit 1
 else
-  bashio::log.info "Testing Home Assistant socket at '${FORWARD_LOCAL_SOCKET}'... Web frontend reachable on local system"
+  if [[ "${HTTP_STATUS_CODE}" -eq 200 ]]; then
+    bashio::log.info "Testing Home Assistant socket at '${FORWARD_LOCAL_SOCKET}'... Web frontend reachable over HTTP on local system"
+  fi
+  if [[ "${HTTPS_STATUS_CODE}" -eq 200 ]]; then
+    bashio::log.info "Testing Home Assistant socket at '${FORWARD_LOCAL_SOCKET}'... Web frontend reachable over HTTPS on local system"
+  fi
 fi
 
 TEST_COMMAND="/usr/bin/ssh "\
