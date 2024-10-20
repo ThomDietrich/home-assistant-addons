@@ -1,0 +1,10 @@
+name: Check
+on: [push]
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v1
+      - name: Run ShellCheck
+        uses: azohra/shell-linter@latest
