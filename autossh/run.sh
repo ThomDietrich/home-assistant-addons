@@ -53,9 +53,9 @@ else
 fi
 
 echo ""
-bashio::log.info "The public key is:"
+bashio::log.info "The public key used by this add-on is:"
 cat "${KEY_PATH}/autossh_rsa_key.pub"
-bashio::log.info "Please add this key to '~/.ssh/authorized_keys' on your remote server"
+bashio::log.info "If not done so already, please add the key to '~/.ssh/authorized_keys' on your remote server"
 
 #
 
@@ -66,12 +66,14 @@ if [ -z "$HOSTNAME" ]; then
 fi
 
 echo ""
+bashio::log.info "Testing Home Assistant socket at '${FORWARD_LOCAL_SOCKET}'..."
 STATUS_CODE=$(/usr/bin/curl --write-out %{http_code} --silent --output /dev/null ${FORWARD_LOCAL_SOCKET})
-if [[ "$STATUS_CODE" -ne 200 ]] ; then
-  bashio::log.error "Testing Home Assistant socket at '$FORWARD_LOCAL_SOCKET'... Failed with HTTP status_code $STATUS_CODE. Please check your config and consult the addon documentation."
+echo "${STATUS_CODE}"
+if [[ "${STATUS_CODE}" -ne 200 ]] ; then
+  bashio::log.error "Testing Home Assistant socket at '${FORWARD_LOCAL_SOCKET}'... Failed with HTTP status_code ${STATUS_CODE}. Please check your config and consult the addon documentation."
   exit 1
 else
-  bashio::log.info "Testing Home Assistant socket at '$FORWARD_LOCAL_SOCKET'... Web frontend reachable on local system"
+  bashio::log.info "Testing Home Assistant socket at '${FORWARD_LOCAL_SOCKET}'... Web frontend reachable on local system"
 fi
 
 TEST_COMMAND="/usr/bin/ssh "\
