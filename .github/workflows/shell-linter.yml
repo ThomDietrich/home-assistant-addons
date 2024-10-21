@@ -8,3 +8,5 @@ jobs:
         uses: actions/checkout@v1
       - name: Run ShellCheck
         uses: azohra/shell-linter@latest
+        with:
+          path: "/github/workspace/autossh/run.sh"
