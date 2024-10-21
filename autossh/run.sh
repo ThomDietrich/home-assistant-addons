@@ -1,4 +1,5 @@
-#!/usr/bin/with-contenv bashio  # shellcheck bash
+#!/usr/bin/with-contenv bashio  # bash
+# shellcheck shell=bash
 set -e
 
 CONFIG_PATH=/data/options.json
