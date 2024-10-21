@@ -69,14 +69,14 @@ echo ""
 HTTP_STATUS_CODE=$(/usr/bin/curl --write-out %{http_code} --silent --output /dev/null http://${FORWARD_LOCAL_SOCKET}) || true
 HTTPS_STATUS_CODE=$(/usr/bin/curl --write-out %{http_code} --silent --insecure --output /dev/null https://${FORWARD_LOCAL_SOCKET}) || true
 if [[ "${HTTP_STATUS_CODE}" -ne 200 && "${HTTPS_STATUS_CODE}" -ne 200 ]] ; then
-  bashio::log.error "Testing internal Home Assistant socket at '${FORWARD_LOCAL_SOCKET}'... "\
-    "Failed with HTTP status_code ${HTTP_STATUS_CODE} and HTTPS status_code ${HTTPS_STATUS_CODE}. "\
+  bashio::log.error "Testing Home Assistant socket '${FORWARD_LOCAL_SOCKET}' on the local system..."\
+    "Failed with HTTP status code ${HTTP_STATUS_CODE} and HTTPS status code ${HTTPS_STATUS_CODE}."\
     "Please check your config and consult the addon documentation."
   exit 1
 elif [[ "${HTTP_STATUS_CODE}" -eq 200 ]]; then
-  bashio::log.info "Testing internal Home Assistant socket at '${FORWARD_LOCAL_SOCKET}'... Web frontend reachable over HTTP"
+  bashio::log.info "Testing Home Assistant socket '${FORWARD_LOCAL_SOCKET}' on the local system... Web frontend reachable over HTTP"
 elif [[ "${HTTPS_STATUS_CODE}" -eq 200 ]]; then
-  bashio::log.info "Testing internal Home Assistant socket at '${FORWARD_LOCAL_SOCKET}'... Web frontend reachable over HTTPS"
+  bashio::log.info "Testing Home Assistant socket '${FORWARD_LOCAL_SOCKET}' on the local system... Web frontend reachable over HTTPS"
 fi
 
 TEST_COMMAND="/usr/bin/ssh "\
@@ -91,11 +91,13 @@ TEST_COMMAND="/usr/bin/ssh "\
 "${USERNAME}@${HOSTNAME} "\
 "2>&1 || true"
 
+echo ""
 if eval "${TEST_COMMAND}" | grep -q "Permission denied"; then
-  bashio::log.info "Testing SSH connection... SSH service reachable on remote server"
+  bashio::log.info "Testing SSH service on '${HOSTNAME}:${SSH_PORT}'... SSH service reachable on remote server"
 else
   eval "${TEST_COMMAND}"
-  bashio::log.error "SSH service can't be reached on the remote server"
+  bashio::log.error "Testing SSH service on '${HOSTNAME}:${SSH_PORT}'... Failed to reach the SSH service on the remote server. "\
+    "Please check your config and consult the addon documentation."
   exit 1
 fi
 
