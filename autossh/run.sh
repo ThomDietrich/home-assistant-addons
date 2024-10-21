@@ -33,6 +33,15 @@ FORCE_GENERATION=$(jq --raw-output ".force_keygen" $CONFIG_PATH)
 
 #
 
+#
+echo ""
+echo ""
+bashio::log.info "Starting initialization script"
+echo ""
+echo "The container is connected via the following IP addresses:"
+ip -o address show
+echo ""
+
 if [ "$FORCE_GENERATION" != "false" ]; then
   bashio::log.info "Deleting existing key pair due to set 'force_keygen'"
   bashio::log.warning "Do not forget to unset 'force_keygen' in your add-on configuration"
@@ -104,11 +113,6 @@ fi
 echo ""
 bashio::log.info "Remote server host keys:"
 ssh-keyscan -p $SSH_PORT $HOSTNAME || true
-
-#
-echo ""
-bashio::log.info "The container is connected via the following IP addresses:"
-ip -o address show
 
 COMMAND="/usr/bin/autossh "\
 "-M 0 "\
