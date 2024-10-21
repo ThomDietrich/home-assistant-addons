@@ -9,4 +9,4 @@ jobs:
       - name: Run ShellCheck
         uses: azohra/shell-linter@latest
         with:
-          path: "run.sh"
+          path: "autossh/run.sh"
