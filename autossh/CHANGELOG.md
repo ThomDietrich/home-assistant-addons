@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.3
+
+- Fix startup issues when SSL/HTTPS is set up locally (https://github.com/ThomDietrich/home-assistant-addons/issues/22, https://github.com/ThomDietrich/home-assistant-addons/issues/24)
+
 ## 1.3.2
 
 - Fix to include `remote_forwarding`. This was always intended and was a bug introduced last minute
