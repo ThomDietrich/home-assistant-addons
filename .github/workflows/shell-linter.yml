@@ -7,6 +7,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v1
       - name: Run ShellCheck
-        uses: Azbagheri/shell-linter@latest
+        uses: Azbagheri/shell-linter@v0.8.0
         with:
           path: "/github/workspace/autossh/run.sh"
