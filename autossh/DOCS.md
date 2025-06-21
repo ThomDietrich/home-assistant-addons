@@ -40,6 +40,8 @@ The add-on creates an SSH keypair and uses it to connect to the given host.
 The public key can be found in the log after the first startup and **must** be copied to the destination server for this add-on to work.
 On your typical Linux system the public key is added to `~/.ssh/authorized_keys`.
 
+Please note that for additional security we prepend some restrictions to the public key that [disallow anything](https://manpages.debian.org/experimental/openssh-server/authorized_keys.5.en.html#restrict) other than port forwarding to the port and host that is specified in the config. For this to work, you **must** leave the `-N` in the `other_ssh_options` section of the default config. If you don't want to use these additional security measures, you can just remove everything before the `ssh-ed25519 …` part of the key printout. Be aware that anyone with access to your local Home Assistant's file system (and thus the private key) will be able to log in to your remote server, and can execute any command if the restrictions are not set. For this reason, we also recommend to create a new user that doesn't have access to anything that isn't needed, if you are not using the docker solution (which provides separation by itself). NEVER add the key to the root user's `authorized_keys` file!
+
 ### Remote Server Configuration
 
 The remote server is the machine hosting the SSH Server and the counterpart for your tunnel connection.
