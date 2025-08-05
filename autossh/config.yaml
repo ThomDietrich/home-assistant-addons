@@ -1,5 +1,5 @@
 name: SSH Tunnel & Forwarding
-version: 1.3.4
+version: 1.4.0
 slug: autossh
 description: >-
   Permanent HA forwarding and domain linking through an SSH tunnel
@@ -25,6 +25,7 @@ options:
   remote_port: 8123
   other_ssh_options: '-v -N'
   force_keygen: false
+  skip_remote_host_checks: false
 schema:
   hostname: str
   ssh_port: int
@@ -37,3 +38,4 @@ schema:
     - str
   other_ssh_options: str
   force_keygen: bool
+  skip_remote_host_checks: bool

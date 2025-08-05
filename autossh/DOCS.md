@@ -163,3 +163,7 @@ This is optional and for testing purposes a verbose output enabled by `-v` can b
 
 A key pair is generated when the container is first initialized in your environment.
 Set this to `true` if you even need to urge to regenerate a key.
+
+### Option: `skip_remote_host_checks`
+
+Set this to `true` to disable remote host checks. This option is useful for SSH servers that rate-limit incoming connections.

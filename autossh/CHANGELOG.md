@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.4.0
+
+- Add an option to skip remote host checks
+
 ## 1.3.4
 
 - Improve main loop to ensure continued connection
