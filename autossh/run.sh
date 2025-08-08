@@ -31,6 +31,7 @@ fi
 
 OTHER_SSH_OPTIONS=$(jq --raw-output ".other_ssh_options" $CONFIG_PATH)
 FORCE_GENERATION=$(jq --raw-output ".force_keygen" $CONFIG_PATH)
+AUTHORIZED_KEYS_RESTRICTION="command=\"\",restrict,port-forwarding,permitopen=\"$FORWARD_REMOTE_IP_ADDRESS:$FORWARD_REMOTE_PORT\""
 
 #
 
@@ -54,7 +55,7 @@ if [ ! -d "$KEY_PATH" ]; then
   mkdir -p "$KEY_PATH"
   ssh-keygen -b 4096 -t ed25519 -N "" -C "hassio-setup-via-autossh" -f "${KEY_PATH}/autossh_rsa_key"
   bashio::log.info "The public key is:"
-  cat "${KEY_PATH}/autossh_rsa_key.pub"
+  echo "${AUTHORIZED_KEYS_RESTRICTION} $(cat "${KEY_PATH}/autossh_rsa_key.pub")"
   bashio::log.warning "Add this key to '~/.ssh/authorized_keys' on your remote server now!"
   bashio::log.warning "Please restart add-on when done. Exiting..."
   exit 1
@@ -64,7 +65,7 @@ fi
 
 echo ""
 bashio::log.info "The public key used by this add-on is:"
-cat "${KEY_PATH}/autossh_rsa_key.pub"
+echo "${AUTHORIZED_KEYS_RESTRICTION} $(cat "${KEY_PATH}/autossh_rsa_key.pub")"
 bashio::log.info "If not done so already, please add the key to '~/.ssh/authorized_keys' on your remote server"
 
 #
