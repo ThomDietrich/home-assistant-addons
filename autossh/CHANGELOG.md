@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.4.0
+
+- Security addition: Recommend an extended public key setup on the remote server that disallows anything other than port forwarding.
+  **Existing users** should consider implementing this in their setup. Thanks to @karlbeecken (https://github.com/ThomDietrich/home-assistant-addons/issues/26, https://github.com/ThomDietrich/home-assistant-addons/pull/31)
+
 ## 1.3.4
 
 - Improve main loop to ensure continued connection
