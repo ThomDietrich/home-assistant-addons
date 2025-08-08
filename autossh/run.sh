@@ -31,7 +31,8 @@ fi
 
 OTHER_SSH_OPTIONS=$(jq --raw-output ".other_ssh_options" $CONFIG_PATH)
 FORCE_GENERATION=$(jq --raw-output ".force_keygen" $CONFIG_PATH)
-AUTHORIZED_KEYS_RESTRICTION="command=\"\",restrict,port-forwarding,permitopen=\"$FORWARD_REMOTE_IP_ADDRESS:$FORWARD_REMOTE_PORT\""
+AUTHORIZED_KEYS_RESTRICTION="command=\"\",restrict,port-forwarding,permitopen=\"${FORWARD_REMOTE_IP_ADDRESS}:${FORWARD_REMOTE_PORT}\""
+SKIP_REMOTE_HOST_CHECKS=$(jq --raw-output ".skip_remote_host_checks" $CONFIG_PATH)
 
 #
 
@@ -102,19 +103,24 @@ TEST_COMMAND="/usr/bin/ssh "\
 "${USERNAME}@${HOSTNAME} "\
 "2>&1 || true"
 
-echo ""
-if eval "${TEST_COMMAND}" | grep -q "Permission denied"; then
-  bashio::log.info "Testing SSH service on '${HOSTNAME}:${SSH_PORT}'... SSH service reachable on remote server"
-else
-  eval "${TEST_COMMAND}"
-  bashio::log.error "Testing SSH service on '${HOSTNAME}:${SSH_PORT}'... Failed to reach the SSH service on the remote server. "\
-    "Please check your config and consult the addon documentation."
-  exit 1
-fi
+if [ "$SKIP_REMOTE_HOST_CHECKS" != "true" ]; then
+  echo ""
+  if eval "${TEST_COMMAND}" | grep -q "Permission denied"; then
+    bashio::log.info "Testing SSH service on '${HOSTNAME}:${SSH_PORT}'... SSH service reachable on remote server"
+  else
+    eval "${TEST_COMMAND}"
+    bashio::log.error "Testing SSH service on '${HOSTNAME}:${SSH_PORT}'... Failed to reach the SSH service on the remote server. "\
+      "Please check your config and consult the addon documentation."
+    exit 1
+  fi
 
-echo ""
-bashio::log.info "Remote server host keys:"
-ssh-keyscan -p $SSH_PORT $HOSTNAME || true
+  echo ""
+  bashio::log.info "Remote server host keys:"
+  ssh-keyscan -p $SSH_PORT $HOSTNAME || true
+else
+  echo ""
+  bashio::log.info "Skipped Remote host checks"
+fi
 
 COMMAND="/usr/bin/autossh "\
 "-M 0 "\
