@@ -101,12 +101,11 @@ else
   HTTP_STATUS_CODE=$(/usr/bin/curl --write-out %{http_code} --silent --output /dev/null --header "X-Forwarded-For: 192.168.12.34" http://${LOCAL_SUBNET_SOCKET}) || true
   HTTPS_STATUS_CODE=$(/usr/bin/curl --write-out %{http_code} --silent --insecure --output /dev/null --header "X-Forwarded-For: 192.168.12.34" https://${LOCAL_SUBNET_SOCKET}) || true
   if [[ "${HTTP_STATUS_CODE}" -ne 200 && "${HTTPS_STATUS_CODE}" -ne 200 ]] ; then
-    bashio::log.error "Testing Home Assistant trusted_proxy setup on socket '${LOCAL_SUBNET_SOCKET}'... "\
-      "Failed with HTTP status code ${HTTP_STATUS_CODE} and HTTPS status code ${HTTPS_STATUS_CODE}."\
+    bashio::log.error "Testing Home Assistant trusted_proxy setup on socket '${LOCAL_SUBNET_SOCKET}'... Failed. "\
       "Please consult the addon documentation regarding the trusted_proxy setup."
     # exit 1 # TODO activate after further testing
   elif [[ "${HTTP_STATUS_CODE}" -eq 200 || "${HTTPS_STATUS_CODE}" -eq 200 ]]; then
-    bashio::log.info "Testing Home Assistant trusted_proxy setup... Web frontend found via local subnet IP"
+    bashio::log.info "Testing Home Assistant trusted_proxy setup... Connection with X-Forwarded-For accepted"
   fi
 fi
 
