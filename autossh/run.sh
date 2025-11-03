@@ -108,7 +108,7 @@ else
   elif [[ "${HTTP_STATUS_CODE}" -eq 200 || "${HTTPS_STATUS_CODE}" -eq 200 ]]; then
     bashio::log.info "Testing Home Assistant trusted_proxy setup... Web frontend found via local subnet IP"
   fi
-
+fi
 
 TEST_COMMAND="/usr/bin/ssh "\
 "-o BatchMode=yes "\
