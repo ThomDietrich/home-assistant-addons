@@ -63,6 +63,7 @@ if [ ! -d "$KEY_PATH" ]; then
 else
   bashio::log.info "Authentication key pair restored"
 fi
+touch -f /etc/ssh/ssh_config.d/empty.conf  # Hide debug warning in logs
 
 echo ""
 bashio::log.info "The public key used by this add-on is:"
@@ -128,6 +129,8 @@ COMMAND="/usr/bin/autossh "\
 "-o ServerAliveCountMax=3 "\
 "-o StrictHostKeyChecking=no "\
 "-o ExitOnForwardFailure=yes "\
+"-o UserKnownHostsFile=/root/.ssh/known_hosts "\
+"-o GlobalKnownHostsFile=/dev/null "\
 "-p ${SSH_PORT} -t -t "\
 "-i ${KEY_PATH}/autossh_rsa_key "\
 "${USERNAME}@${HOSTNAME}"
