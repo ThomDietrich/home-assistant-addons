@@ -1,89 +1,100 @@
-# Home Assistant Add-on: Autossh
+# Home Assistant Add-on: **Autossh**
 
-Use SSH to make ports of your local Home Assistant setup available at or through a remote system.
-This forms yet another way to make the Lovelace UI and other services accessible from another network or the public internet.
-If you do not have the authority to open ports into your local network, and a VPN solutions seems overkill, this add-on might just be the solution for you.
+**Make your Home Assistant accessible from anywhere — securely, through an SSH tunnel.**
 
-The solution is only useful to those with access to a publicly available SSH server and some administrative privileges on that system.
+Autossh lets you forward local ports (like your Home Assistant UI) through a remote SSH server.
+It’s a simple alternative to VPNs or complex network setups — perfect if you can’t open ports on your home network.
 
-Autossh is a well known tool to establish an SSH connection and keep it connected over hours and months.
-SSH is known for its high security and the ability to set up port forwardings in both directions through the SSH connection.
-In combination, this add-on offers tunneled port forwarding functionality.
+You need access to a publicly available SSH server and some administrative privileges on that system.
 
-The solution works reliably and without disruptions.
+The solution works reliably and without disruptions for a multitude of users.
 
-## TL;DR;
+## Quick Start (TL;DR)
 
-Set `hostname` and `username`, start once to generate a key pair, copy key pair over to remote server, start again, check log for success or error messages. Do not forget to set your home network as a "trusted_proxy".
+1. Set `hostname` and `username` in the add-on config.
+2. Start the add-on once → it generates a fresh SSH key pair.
+3. Copy the **public key** provided via logs to your remote server’s `authorized_keys`.
+4. **Important:** Add the `trusted_proxy` configuration to your Home Assistant's `configuration.yaml`.
+5. Start the add-on again and check logs for success or error messages.
 
-## Setup
+----
 
-The installation of this add-on is pretty straightforward and not different in comparison to installing any other Home Assistant add-on.
-After the add-on is installed on your system, follow the instructions in the next few sections.
+## Setup Guide
 
-### Preparation of your Home Assistant Network Configuration
+### 1. Prepare Home Assistant Network Configuration
 
-Please add the following lines to your `configuration.yaml` file.
-For a description of this security measure see: https://www.home-assistant.io/integrations/http/#trusted_proxies
+Add this to your Home Assistant `configuration.yaml` (replace the IP with your HA host IP):
 
 ```yaml
 http:
   use_x_forwarded_for: true
   trusted_proxies:
-    - 192.168.0.2  # Replace with the internal IP address of your Home Assistant host
+    - 192.168.0.2
 ```
 
-### SSH Connection Credentials
+This allows Home Assistant to trust forwarded connections from the SSH tunnel.
+More info: [Trusted Proxies — Home Assistant Docs](https://www.home-assistant.io/integrations/http/#trusted_proxies)
+
+### 2. SSH Key Generation & Setup
 
 After installation and first start, check the logs of the add-on to see further instructions and status details.
 The add-on creates an SSH keypair and uses it to connect to the given host.
-The public key can be found in the log after the first startup and **must** be copied to the remote server for this add-on to work.
+The public key can be found in the log after the first startup and must be copied to the remote server.
 
 On your typical remote server Linux system the public key is added to `<users home>/.ssh/authorized_keys`.
 Do NOT add the key to the root user's `authorized_keys` file.
 We recommend a dedicated user that doesn't have access to anything that isn't needed.
-Alternatively consider the Docker solution (which provides separation by itself).
+Consider the Docker solution provided below.
 
-**Regarding the suggested `command` part of the public key printout:**
-
+**Security Note**
 For additional security, we prepend some restrictions to the public key that [disallow anything](https://manpages.debian.org/experimental/openssh-server/authorized_keys.5.en.html#restrict) other than port forwarding on the remote server.
 For this to work, you **must** leave the `-N` in the `other_ssh_options` section of the default config.
-If you don't want to use these additional security measures, you can remove everything before the `ssh-ed25519 ...` part of the key printout.
+If you do not want to use these additional security measures, you can remove everything before the `ssh-ed25519 ...` part of the key printout.
 
 Be aware that anyone with access to your local Home Assistant's file system (and thus the private key) will be able to log in to your remote server and can execute any command if the restrictions are not set.
 
-### Remote Server Configuration
+----
+
+## Remote Server Configuration
 
 The remote server is the machine hosting the SSH Server and the counterpart for your tunnel connection.
-All traffic using this add-on goes through it, a domain name dedicated to your Home Assistant instance must be bound to this servers address.  
+Most users might want to bind a domain name dedicated to their Home Assistant instance to this server's address.  
 
 By default, forwarded ports can only be bound to localhost.
-To make it available on a public interface, either reconfigure SSH or set up a reverse proxy. A docker solution is given as the most secure and the cleanest solution overall.
+To make it available on a public interface, either reconfigure SSH or set up a reverse proxy.
+A docker solution is given as the most secure and the cleanest solution overall.
+You can expose ports in three main ways:
 
-#### Option 1: SSH GatewayPorts
+### Option 1: Enable SSH GatewayPorts
 
-Consider to set `GatewayPorts clientspecified` in sshd-config if you would like to open ports on other interfaces than localhost.
+On the remot server edit `/etc/ssh/sshd_config`:
 
-#### Option 2: Reverse Proxy
+```
+GatewayPorts clientspecified
+```
 
-Use a reverse proxy to make ports accessible on public interfaces.
-Software like Caddy can be used to not only set up the redirect, it will also automatically retrieve a Let's Encrypt certificate (https) if you own a domain name.
+This allows forwarded ports to bind to interfaces other than localhost.
 
-#### Option 3: Docker Based Solution
+### Option 2: Use a Reverse Proxy
 
-This is the recommeded strategy.
+Run a reverse proxy (e.g. **Caddy**, **Traefik**, **NGINX**) to:
+
+* Expose the service publicly, and
+* Automatically manage SSL certificates (e.g. via Let’s Encrypt).
+
+### Option 3: Use a Docker-based SSH Server (Recommended)
+
 Set up a dedicated SSH server isolated within a docker container on the remote server. This solution minimizes the attack surface of the overall solution tremendously.
 
-The code below shows a suited `docker-compose.yml` configuration, including an example how you would nicely combine this with traefik as a reverse proxy option (The further setup of traefik is not shown here and out of scope).
+The code below shows a suited `docker-compose.yml` configuration, including an example how you would nicely combine this with traefik as a reverse proxy option.
 
 ```yaml
-version: '3.1'
 services:
   homeassistant-autossh:
     image: linuxserver/openssh-server:latest
     restart: unless-stopped
     ports:
-      - 1.2.3.4:2222:2222  # External SSH port, to be used with autossh by homeassistant
+      - 1.2.3.4:2222:2222
     networks:
       - traefik
       - default
@@ -96,11 +107,10 @@ services:
       - SUDO_ACCESS=false
       - PUBLIC_KEY_FILE=/authorized_keys
     volumes:
-      - ./openssh_config:/config  # Enable AllowTcpForwarding and GatewayPorts after creation during first run
-      - ./authorized_keys:/authorized_keys:ro  # Store the generated ssh key here
+      - ./openssh_config:/config               # Enable AllowTcpForwarding and GatewayPorts after creation during first run
+      - ./authorized_keys:/authorized_keys:ro  # Store the generated ssh key from the add-on logs here
     labels:
       traefik.enable: "true"
-
       traefik.http.routers.homeassistant-myhome.rule: Host(`myhome.domain.tld`)
       traefik.http.routers.homeassistant-myhome.tls.certresolver: resolver-gandi
       traefik.http.routers.homeassistant-myhome.service: homeassistant-myhome
@@ -111,71 +121,31 @@ networks:
     external: true
 ```
 
-The respective addon config for this looks similar to this:
+The respective addon config might look similar to this:
 
 ```yaml
-hostname: 1.2.3.4  # or public domain
+hostname: myserver.domain.tld
 ssh_port: 2222
 username: homeassistant
 remote_ip_address: "127.0.0.1"
 remote_port: 8123
 ```
 
-## Configuration
+----
 
-### Option: `hostname`
+## Configuration Options
 
-The hostname of your SSH server (DNS or IP).
-
-### Option: `ssh_port`
-
-The SSH port on your SSH server (typically 22).
-
-### Option: `username`
-
-The username to be connected as on the SSH server.
-Remember to store the generated public key in `~/.ssh/authorized_keys` of this users home.
-
-### Option: `remote_ip_address`
-
-The IP address ON the remote server, on which you wish to provide the forwarded IP-port-socket (your HA UI).
-This will typically be `127.0.0.1` to denote the localhost of the remote server.
-Alternatively you may want to provide the public IP of your server.
-Please refer to "Remote Server Configuration" if in doubt.
-
-### Option: `remote_port`
-
-The port number ON the remote server, on which you wish to provide the forwarded IP-port-socket (your HA UI).
-You can set this port however you like. It's totally fine to keep the HA-typical port `8123`.
-
-### Option: `local_ip_address` (optional)
-
-This option specifies the IP address of wherever Home Assistant listens to on the local machine from which the SSH connection is being established.
-
-If you are running on standard HASS and are experiencing issues, try to set this to `home-assistant`.
-On the HASS OS 9.4+, the corresponding IP address should be `172.30.32.1`, earlier than HASS OS 9.4 used `172.17.0.1` instead.
-The addon will also post all interface info during startup.
-
-### Option: `local_port` (optional)
-
-This option specifies the local port of wherever Home Assistant listens to on the machine from which the SSH connection is being established.
-
-### Option: `remote_forwarding` (optional)
-
-A list of generic SSH remote forwadings to be applied.
-For this add-on, the most common setting was `127.0.0.1:8123:172.30.32.1:8123`, which forwards the Lovelace UI to the remote server.
-However, this forwarding rule can conveniently be achieved by the use of `remote_ip_address` and `remote_port`.
-
-### Option: `other_ssh_options`
-
-Additional `ssh` options that will be added.
-This is optional and for testing purposes a verbose output enabled by `-v` can be useful.
-
-### Option: `force_keygen`
-
-A key pair is generated when the container is first initialized in your environment.
-Set this to `true` if you even need to urge to regenerate a key.
-
-### Option: `skip_remote_host_checks`
-
-Set this to `true` to disable remote host checks. This option is useful for SSH servers that rate-limit incoming connections.
+| Option                    | Description                                                                                                                | Examples                                  |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------- |
+| `hostname`                | The remote server’s hostname or IP address.                                                                                | `myserver.domain.tld`, `1.2.3.4`          |
+| `ssh_port`                | SSH port on the remote server.                                                                                             | `2222`                                    |
+| `username`                | SSH username used to connect.                                                                                              | `homeassistant`                           |
+| `remote_ip_address`       | IP address on the remote server to bind the Home Assistant UI on.                                                          | `127.0.0.1`                               |
+| `remote_port`             | Port on the remote server to bind the Home Assistant UI on.                                                                | `8123`                                    |
+| <br>**Secondary and Optional:** | |
+| `force_keygen`            | Force regeneration of SSH key pair on next start.                                                                          | `true` or `false` (default)               |
+| `other_ssh_options`       | Additional SSH options (e.g., `-v` for verbose output for troubleshooting). Under normal conditions, this should be `-N`.  | `-N -v` or `-N` (default)                 |
+| `skip_remote_host_checks` | Disable host checks (useful if SSH server rate-limits connections).                                                        | `true` or `false` (default)               |
+| `local_ip_address`        | Local IP to reach the Home Assistant UI. Not needed on standard HA OS setups.                                              | `home-assistant` (default), `172.30.32.1` |
+| `local_port`              | Local port to reach the Home Assistant UI. Not needed on standard HA OS setups.                                            | `8123` (default)                          |
+| `remote_forwarding`       | Custom SSH remote forwardings, in addition to the Home Assistant UI. If not needed, leave empty with `[]`                  | `[]` (default)<br>`- 127.0.0.1:1883:core-mosquitto:1883` |
