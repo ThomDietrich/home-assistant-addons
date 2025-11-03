@@ -93,7 +93,7 @@ elif [[ "${HTTPS_STATUS_CODE}" -eq 200 ]]; then
 fi
 
 echo ""
-LOCAL_SUBNET_IP=$(ip -o address show | grep "noprefixroute end0" | grep -oP "\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/\d{1,2}" | grep -oP "\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}") || true
+LOCAL_SUBNET_IP=$(ip -o address show | grep "noprefixroute end0" | grep -oE "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/[0-9]{1,2}" | grep -oE "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}") || true
 if [ -z "$LOCAL_SUBNET_IP" ]; then
   bashio::log.warning "Testing Home Assistant trusted_proxy setup... Local subnet IP could not be determined. Please report your case in the add-on's Github repository"
 else
