@@ -93,20 +93,21 @@ elif [[ "${HTTPS_STATUS_CODE}" -eq 200 ]]; then
 fi
 
 echo ""
-LOCAL_SUBNET_IP=$(ip -o address show | grep "noprefixroute end0" | grep -oE "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/[0-9]{1,2}" | grep -oE "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}") || true
-if [ -z "$LOCAL_SUBNET_IP" ]; then
-  bashio::log.warning "Testing Home Assistant trusted_proxy setup... Local subnet IP could not be determined. Please report your case in the add-on's Github repository"
-else
-  LOCAL_SUBNET_SOCKET="${LOCAL_SUBNET_IP}:${FORWARD_LOCAL_PORT}"
-  HTTP_STATUS_CODE=$(/usr/bin/curl --write-out %{http_code} --silent --output /dev/null --header "X-Forwarded-For: 192.168.12.34" http://${FORWARD_LOCAL_SOCKET}) || true
-  HTTPS_STATUS_CODE=$(/usr/bin/curl --write-out %{http_code} --silent --insecure --output /dev/null --header "X-Forwarded-For: 192.168.12.34" https://${FORWARD_LOCAL_SOCKET}) || true
-  if [[ "${HTTP_STATUS_CODE}" -ne 200 && "${HTTPS_STATUS_CODE}" -ne 200 ]] ; then
-    bashio::log.error "Testing Home Assistant trusted_proxy setup on socket '${LOCAL_SUBNET_SOCKET}'... Failed."\
-      "Please consult the addon documentation regarding the trusted_proxy setup."
-    # exit 1 # TODO activate after further testing
-  elif [[ "${HTTP_STATUS_CODE}" -eq 200 || "${HTTPS_STATUS_CODE}" -eq 200 ]]; then
-    bashio::log.info "Testing Home Assistant trusted_proxy setup... Connection with X-Forwarded-For accepted"
-  fi
+# LOCAL_SUBNET_IP=$(ip -o address show | grep "noprefixroute end0" | grep -oE "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/[0-9]{1,2}" | grep -oE "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}") || true
+# if [ -z "$LOCAL_SUBNET_IP" ]; then
+#   bashio::log.warning "Testing Home Assistant trusted_proxy setup... Local subnet IP could not be determined. Please report your case in the add-on's Github repository"
+# else
+#   LOCAL_SUBNET_SOCKET="${LOCAL_SUBNET_IP}:${FORWARD_LOCAL_PORT}"
+#   ...
+# fi
+HTTP_STATUS_CODE=$(/usr/bin/curl --write-out %{http_code} --silent --output /dev/null --header "X-Forwarded-For: 192.168.12.34" http://${FORWARD_LOCAL_SOCKET}) || true
+HTTPS_STATUS_CODE=$(/usr/bin/curl --write-out %{http_code} --silent --insecure --output /dev/null --header "X-Forwarded-For: 192.168.12.34" https://${FORWARD_LOCAL_SOCKET}) || true
+if [[ "${HTTP_STATUS_CODE}" -ne 200 && "${HTTPS_STATUS_CODE}" -ne 200 ]] ; then
+  bashio::log.error "Testing Home Assistant trusted_proxy setup on socket '${FORWARD_LOCAL_SOCKET}' with X-Forwarded-For header... Failed."\
+    "Please consult the addon documentation regarding the trusted_proxy setup."
+  # exit 1 # TODO activate after further testing
+elif [[ "${HTTP_STATUS_CODE}" -eq 200 || "${HTTPS_STATUS_CODE}" -eq 200 ]]; then
+  bashio::log.info "Testing Home Assistant trusted_proxy setup... Connection with X-Forwarded-For header accepted"
 fi
 
 TEST_COMMAND="/usr/bin/ssh "\
