@@ -42,28 +42,17 @@ The add-on creates an SSH keypair and uses it to connect to the given host.
 The public key can be found in the log after the first startup and must be copied to the remote server.
 
 On your typical remote server Linux system the public key is added to `<users home>/.ssh/authorized_keys`.
-Do NOT add the key to the root user's `authorized_keys` file.
-We recommend a dedicated user that doesn't have access to anything that isn't needed.
-Consider the Docker solution provided below.
 
-**Security Note**
-For additional security, we prepend some restrictions to the public key that [disallow anything](https://manpages.debian.org/experimental/openssh-server/authorized_keys.5.en.html#restrict) other than port forwarding on the remote server.
-For this to work, you **must** leave the `-N` in the `other_ssh_options` section of the default config.
-If you do not want to use these additional security measures, you can remove everything before the `ssh-ed25519 ...` part of the key printout.
-
-Be aware that anyone with access to your local Home Assistant's file system (and thus the private key) will be able to log in to your remote server and can execute any command if the restrictions are not set.
+Please consider the remote server security remarks provided below.
 
 ----
 
 ## Remote Server Configuration
 
-The remote server is the machine hosting the SSH Server and the counterpart for your tunnel connection.
-Most users might want to bind a domain name dedicated to their Home Assistant instance to this server's address.  
+The remote server is the machine hosting the SSH server and is the counterpart for the tunnelled connection initiated by this add-on.
 
-By default, forwarded ports can only be bound to localhost.
-To make it available on a public interface, either reconfigure SSH or set up a reverse proxy.
-A docker solution is given as the most secure and the cleanest solution overall.
-You can expose ports in three main ways:
+By default, forwarded ports on SSH (openssh) can only be bound to localhost.
+To make the forwarded port (i.e. the Home Assistant UI) available on a public interface, ideally linked to a dedicated domain name, a couple of options exist.
 
 ### Option 1: Enable SSH GatewayPorts
 
@@ -107,7 +96,7 @@ services:
       - SUDO_ACCESS=false
       - PUBLIC_KEY_FILE=/authorized_keys
     volumes:
-      - ./openssh_config:/config               # Enable AllowTcpForwarding and GatewayPorts after creation during first run
+      - ./openssh_config:/config               # Enable AllowTcpForwarding and GatewayPorts after creation (during first docker run)
       - ./authorized_keys:/authorized_keys:ro  # Store the generated ssh key from the add-on logs here
     labels:
       traefik.enable: "true"
@@ -130,6 +119,36 @@ username: homeassistant
 remote_ip_address: "127.0.0.1"
 remote_port: 8123
 ```
+
+----
+
+## Additional Remarks
+
+### Remote Server Security
+
+The SSH key pair managed by this add-on is a security risk to your remote server.
+Anyone with access to your local Home Assistant's file system will be able to log into your remote server and can execute arbitrary command.
+
+**Solution, part 1:**
+Consider isolating the SSH connection inside a docker container. See above.
+
+**Solution, part 2:** 
+Limit the capabilities of the add-on's ssh key on the remote server.
+This is done by adding [restrictions](https://manpages.debian.org/experimental/openssh-server/authorized_keys.5.en.html#restrict) right to the `authorized_keys` file.
+By default, this add-on suggests adding `command="",restrict,port-forwarding,permitopen="127.0.0.1:8123"` in front of `ssh-ed25519 ...` in the log printout (the last part might differ).
+Consider adding the complete suggested line to your remote server.
+
+You **must** leave the `-N` in the `other_ssh_options` section of the default config to stay within these restrictions.
+
+### Blocked Socket after Connection Timeout
+
+You might encounter the error messages "Error: remote port forwarding failed for listen port 8123" or "sshd[431646]: error: bind [::]:8123: Address already in use" after the connection between server and client had a connection issue.
+The remote server still sees the previous SSH session as connected while the client (this add-on) is trying to reconnect and fails to bind to the blocked socket.
+The issue should quickly resolve itself, as the SSH server will eventually time-out and close the dead connection.
+However, depending on your OS and existing configuration, this might not be the case.
+
+**Solution:**
+Please add `TCPKeepAlive yes`, `ClientAliveInterval 30`, and `ClientAliveCountMax 3` to `/etc/ssh/sshd_config` on the remote server. 
 
 ----
 
