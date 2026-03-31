@@ -29,3 +29,4 @@ LABEL \
 RUN apk add --no-cache tzdata jq openssh vim curl autossh
 
 COPY rootfs /
+RUN chmod a+x /etc/services.d/autossh/run /etc/services.d/autossh/finish
