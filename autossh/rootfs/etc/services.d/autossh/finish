@@ -3,5 +3,5 @@
 # s6-overlay finish script: runs after the service exits
 # $1 = exit code (256 if killed by signal)
 
-bashio::log.warning "Service exited with code ${1}. Restarting in 60 seconds..."
-sleep 60
+bashio::log.warning "Service exited with code ${1}. Restarting in 5 seconds..."
+sleep 5
