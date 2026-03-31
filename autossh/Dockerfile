@@ -26,7 +26,7 @@ LABEL \
     org.opencontainers.image.revision=${BUILD_REF} \
     org.opencontainers.image.version=${BUILD_VERSION}
 
-RUN apk add --no-cache tzdata jq openssh vim curl autossh
+RUN apk add --no-cache tzdata openssh vim curl autossh
 
 COPY rootfs /
 RUN chmod a+x /etc/services.d/autossh/run /etc/services.d/autossh/finish

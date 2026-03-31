@@ -2,41 +2,29 @@
 # shellcheck shell=bash
 set -euo pipefail
 
-CONFIG_PATH=/data/options.json
 KEY_PATH=/data/ssh_keys
 
-HOSTNAME=$(jq --raw-output ".hostname" $CONFIG_PATH)
-SSH_PORT=$(jq --raw-output ".ssh_port" $CONFIG_PATH)
-USERNAME=$(jq --raw-output ".username" $CONFIG_PATH)
+HOSTNAME=$(bashio::config 'hostname')
+SSH_PORT=$(bashio::config 'ssh_port')
+USERNAME=$(bashio::config 'username')
 
-FORWARD_REMOTE_IP_ADDRESS=$(jq --raw-output ".remote_ip_address" $CONFIG_PATH)
-FORWARD_REMOTE_PORT=$(jq --raw-output ".remote_port" $CONFIG_PATH)
-FORWARD_LOCAL_IP_ADDRESS=$(jq --raw-output ".local_ip_address" $CONFIG_PATH)
-FORWARD_LOCAL_PORT=$(jq --raw-output ".local_port" $CONFIG_PATH)
-CUSTOM_REMOTE_FORWARDING=$(jq --raw-output ".remote_forwarding[]" $CONFIG_PATH)
-if [ -z "$FORWARD_LOCAL_IP_ADDRESS" ] || [ "$FORWARD_LOCAL_IP_ADDRESS" = "null" ]; then
-  FORWARD_LOCAL_IP_ADDRESS="172.30.32.1"
-fi
-if [ -z "$FORWARD_LOCAL_PORT" ] || [ "$FORWARD_LOCAL_PORT" = "null" ]; then
-  FORWARD_LOCAL_PORT=8123
-fi
+FORWARD_REMOTE_IP_ADDRESS=$(bashio::config 'remote_ip_address')
+FORWARD_REMOTE_PORT=$(bashio::config 'remote_port')
+FORWARD_LOCAL_IP_ADDRESS=$(bashio::config 'local_ip_address' '172.30.32.1')
+FORWARD_LOCAL_PORT=$(bashio::config 'local_port' '8123')
 FORWARD_LOCAL_SOCKET="${FORWARD_LOCAL_IP_ADDRESS}:${FORWARD_LOCAL_PORT}"
 FORWARD_REMOTE_SOCKET="${FORWARD_REMOTE_IP_ADDRESS}:${FORWARD_REMOTE_PORT}"
 FORWARDING_STRING="-R ${FORWARD_REMOTE_SOCKET}:${FORWARD_LOCAL_SOCKET}"
-if [ -n "$CUSTOM_REMOTE_FORWARDING" ]; then
+if bashio::config.has_value 'remote_forwarding'; then
   while read -r LINE; do
     FORWARDING_STRING="${FORWARDING_STRING} -R ${LINE}"
-  done <<< "${CUSTOM_REMOTE_FORWARDING}"
+  done <<< "$(bashio::config 'remote_forwarding')"
 fi
 
-OTHER_SSH_OPTIONS=$(jq --raw-output ".other_ssh_options" $CONFIG_PATH)
-FORCE_GENERATION=$(jq --raw-output ".force_keygen" $CONFIG_PATH)
+OTHER_SSH_OPTIONS=$(bashio::config 'other_ssh_options')
 AUTHORIZED_KEYS_RESTRICTION="command=\"\",restrict,port-forwarding,permitopen=\"${FORWARD_REMOTE_IP_ADDRESS}:${FORWARD_REMOTE_PORT}\""
-SKIP_REMOTE_HOST_CHECKS=$(jq --raw-output ".skip_remote_host_checks" $CONFIG_PATH)
 
-#
 
-#
 echo ""
 echo ""
 bashio::log.info "Starting initialization script"
@@ -45,7 +33,7 @@ echo "The container is connected via the following IP addresses:"
 ip -o address show
 echo ""
 
-if [ "$FORCE_GENERATION" != "false" ]; then
+if bashio::config.true 'force_keygen'; then
   bashio::log.info "Deleting existing key pair due to set 'force_keygen'"
   bashio::log.warning "Do not forget to unset 'force_keygen' in your add-on configuration"
   rm -rf "$KEY_PATH"
@@ -70,9 +58,7 @@ bashio::log.info "The public key used by this add-on is:"
 echo "${AUTHORIZED_KEYS_RESTRICTION} $(cat "${KEY_PATH}/autossh_rsa_key.pub")"
 bashio::log.info "If not done so already, please add the key to '~/.ssh/authorized_keys' on your remote server"
 
-#
-
-if [ -z "$HOSTNAME" ]; then
+if ! bashio::config.has_value 'hostname'; then
   echo ""
   bashio::log.error "Please set 'hostname' in your config to the address of your remote server"
   exit 1
@@ -93,13 +79,6 @@ elif [[ "${HTTPS_STATUS_CODE}" -eq 200 ]]; then
 fi
 
 echo ""
-# LOCAL_SUBNET_IP=$(ip -o address show | grep "noprefixroute end0" | grep -oE "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/[0-9]{1,2}" | grep -oE "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}") || true
-# if [ -z "$LOCAL_SUBNET_IP" ]; then
-#   bashio::log.warning "Testing Home Assistant trusted_proxy setup... Local subnet IP could not be determined. Please report your case in the add-on's Github repository"
-# else
-#   LOCAL_SUBNET_SOCKET="${LOCAL_SUBNET_IP}:${FORWARD_LOCAL_PORT}"
-#   ...
-# fi
 HTTP_STATUS_CODE=$(/usr/bin/curl --write-out %{http_code} --silent --output /dev/null --header "X-Forwarded-For: 192.168.12.34" http://${FORWARD_LOCAL_SOCKET}) || true
 HTTPS_STATUS_CODE=$(/usr/bin/curl --write-out %{http_code} --silent --insecure --output /dev/null --header "X-Forwarded-For: 192.168.12.34" https://${FORWARD_LOCAL_SOCKET}) || true
 if [[ "${HTTP_STATUS_CODE}" -ne 200 && "${HTTPS_STATUS_CODE}" -ne 200 ]] ; then
@@ -122,7 +101,7 @@ TEST_COMMAND="/usr/bin/ssh "\
 "${USERNAME}@${HOSTNAME} "\
 "2>&1 || true"
 
-if [ "$SKIP_REMOTE_HOST_CHECKS" != "true" ]; then
+if ! bashio::config.true 'skip_remote_host_checks'; then
   echo ""
   if eval "${TEST_COMMAND}" | grep -q "Permission denied"; then
     bashio::log.info "Testing SSH service on '${HOSTNAME}:${SSH_PORT}'... SSH service found on remote server"
