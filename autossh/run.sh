@@ -1,6 +1,6 @@
 #!/usr/bin/with-contenv bashio
 # shellcheck shell=bash
-set -e
+set -euo pipefail
 
 CONFIG_PATH=/data/options.json
 KEY_PATH=/data/ssh_keys
@@ -118,7 +118,7 @@ TEST_COMMAND="/usr/bin/ssh "\
 "-o KbdInteractiveAuthentication=no "\
 "-o ChallengeResponseAuthentication=no "\
 "-o StrictHostKeyChecking=no "\
-"-p ${SSH_PORT} -t -t "\
+"-p ${SSH_PORT} "\
 "${USERNAME}@${HOSTNAME} "\
 "2>&1 || true"
 
@@ -149,7 +149,7 @@ COMMAND="/usr/bin/autossh "\
 "-o ExitOnForwardFailure=yes "\
 "-o UserKnownHostsFile=/root/.ssh/known_hosts "\
 "-o GlobalKnownHostsFile=/dev/null "\
-"-p ${SSH_PORT} -t -t "\
+"-p ${SSH_PORT} "\
 "-i ${KEY_PATH}/autossh_rsa_key "\
 "${USERNAME}@${HOSTNAME}"
 
@@ -159,11 +159,20 @@ echo ""
 bashio::log.info "Preparations done."
 echo ""
 
+export AUTOSSH_GATETIME=0
+export AUTOSSH_POLL=30
+RESTART_COUNT=0
 while true; do
+  RESTART_COUNT=$((RESTART_COUNT + 1))
   bashio::log.info "Executing command: ${COMMAND}"
   /usr/bin/autossh -V
+
+  set +e
   eval "${COMMAND}"
+  EXIT_CODE=$?
+  set -e
+
   echo ""
-  bashio::log.error "SSH connection seems to have crashed. Reconnecting..."
-  echo ""
+  bashio::log.error "SSH service exited with code ${EXIT_CODE}. Restarting in 60 seconds... (attempt ${RESTART_COUNT})"
+  sleep 60
 done
