@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.5.0
+
+Happy to push a bigger update with changes to tackle all known issues with connection handling and configuration. This has been overdue. Enjoy!
+
+**Existing users:** The update does not affect your existing installation or configuration.
+
+- Fix autossh silently retrying failed connections instead of exiting. Set `AUTOSSH_GATETIME=0` and `AUTOSSH_MAXSTART=1` to ensure clean exit on connection failure. Fixes #36
+- Convert to s6-overlay supervised service for automatic restart on any failure, including pre-flight check failures
+- Make the `-N` parameter permanent and remove it from the configurable `other_ssh_options`. Existing users with `-N` in their `other_ssh_options` should remove it, as it is now always applied. Resolves #35
+- Provide a default empty list for `remote_forwarding`. This should resolve #33
+- Remove unused Home Assistant config directory mapping
+- Replace jq config parsing with bashio config helpers
+- Add Dockerfile labels (io.hass.*, OCI image metadata)
+- Set minimum Home Assistant version to 2024.1.0
+- Rewrite documentation
+
 ## 1.4.0
 
 - Security addition: Recommend an extended public key setup on the remote server that disallows anything other than port forwarding.

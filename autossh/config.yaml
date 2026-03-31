@@ -1,5 +1,5 @@
 name: SSH Tunnel & Forwarding
-version: 1.4.0
+version: 1.5.0
 slug: autossh
 description: >-
   Permanent HA forwarding and domain linking through an SSH tunnel
