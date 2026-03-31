@@ -151,7 +151,8 @@ COMMAND="/usr/bin/autossh "\
 "-o GlobalKnownHostsFile=/dev/null "\
 "-p ${SSH_PORT} "\
 "-i ${KEY_PATH}/autossh_rsa_key "\
-"${USERNAME}@${HOSTNAME}"
+"${USERNAME}@${HOSTNAME} "\
+"-N"
 
 COMMAND="${COMMAND} ${FORWARDING_STRING} ${OTHER_SSH_OPTIONS}"
 

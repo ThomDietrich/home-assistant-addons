@@ -138,7 +138,7 @@ This is done by adding [restrictions](https://manpages.debian.org/experimental/o
 By default, this add-on suggests adding `command="",restrict,port-forwarding,permitopen="127.0.0.1:8123"` in front of `ssh-ed25519 ...` in the log printout (the last part might differ).
 Consider adding the complete suggested line to your remote server.
 
-You **must** leave the `-N` in the `other_ssh_options` section of the default config to stay within these restrictions.
+The `-N` flag is always applied automatically by the add-on to stay within these restrictions.
 
 ### Blocked Socket after Connection Timeout
 
@@ -163,7 +163,7 @@ Please add `TCPKeepAlive yes`, `ClientAliveInterval 30`, and `ClientAliveCountMa
 | `remote_port`             | Port on the remote server to bind the Home Assistant UI on.                                                                | `8123`                                    |
 | <br>**Secondary and Optional:** | |
 | `force_keygen`            | Force regeneration of SSH key pair on next start.                                                                          | `true` or `false` (default)               |
-| `other_ssh_options`       | Additional SSH options (e.g., `-v` for verbose output for troubleshooting). Under normal conditions, this should be `-N`.  | `-N -v` or `-N` (default)                 |
+| `other_ssh_options`       | Additional SSH options (e.g., `-v` for verbose output for troubleshooting).                                                | `-v` (default)                            |
 | `skip_remote_host_checks` | Disable host checks (useful if SSH server rate-limits connections).                                                        | `true` or `false` (default)               |
 | `local_ip_address`        | Local IP to reach the Home Assistant UI. Not needed on standard HA OS setups.                                              | `home-assistant` (default), `172.30.32.1` |
 | `local_port`              | Local port to reach the Home Assistant UI. Not needed on standard HA OS setups.                                            | `8123` (default)                          |
