@@ -163,18 +163,7 @@ echo ""
 export AUTOSSH_GATETIME=0
 export AUTOSSH_POLL=30
 export AUTOSSH_MAXSTART=1
-RESTART_COUNT=0
-while true; do
-  RESTART_COUNT=$((RESTART_COUNT + 1))
-  bashio::log.info "Executing command: ${COMMAND}"
-  /usr/bin/autossh -V
 
-  set +e
-  eval "${COMMAND}"
-  EXIT_CODE=$?
-  set -e
-
-  echo ""
-  bashio::log.error "SSH service exited with code ${EXIT_CODE}. Restarting in 60 seconds... (attempt ${RESTART_COUNT})"
-  sleep 60
-done
+bashio::log.info "Executing command: ${COMMAND}"
+/usr/bin/autossh -V
+eval "${COMMAND}"
