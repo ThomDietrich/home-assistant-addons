@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.1
+
+- Fix add-on build on Home Assistant Supervisor 2026.04.0 and newer. Supervisor no longer reads `build.yaml` and stops injecting `BUILD_FROM`, so the Dockerfile now sets the multi-arch base image directly via `ARG BUILD_FROM=ghcr.io/home-assistant/base:3.23`. Legacy `BUILD_*` args and their empty-string labels are removed; `io.hass.*` labels are now set by the Supervisor itself. Fixes https://github.com/ThomDietrich/home-assistant-addons/issues/37. See https://github.com/home-assistant/supervisor/pull/6694 and https://developers.home-assistant.io/docs/apps/configuration/
+
 ## 1.5.0
 
 Happy to push a bigger update that tackles all known issues with connection handling and configuration. This has been overdue. Enjoy!
